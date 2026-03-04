@@ -147,3 +147,99 @@ node dist/index.js
 cd web && npm run build
 # output อยู่ที่ web/dist/ พร้อม deploy บน Vercel / Netlify / static hosting
 ```
+
+---
+
+## 🔄 CI/CD Setup
+
+โปรเจกต์นี้ใช้ **GitHub Actions** สำหรับ CI/CD โดยมี 2 workflows:
+
+### Workflows
+
+| Workflow | ไฟล์ | Trigger | หน้าที่ |
+|---|---|---|---|
+| **CI** | `.github/workflows/ci.yml` | PR → `develop`, `main` | Build + Lint ทั้ง backend และ frontend |
+| **Deploy** | `.github/workflows/deploy.yml` | Push → `main` | Deploy frontend ไป Vercel, backend ไป Render |
+
+### How the Pipeline Works
+
+```
+PR opened / updated
+        │
+        ▼
+   [ci.yml runs]
+        │
+  ┌─────┴──────┐
+  ▼            ▼
+Build       Build &
+Backend     Lint Frontend
+        │
+        ▼
+   PR merged to main
+        │
+        ▼
+  [deploy.yml runs]
+        │
+  ┌─────┴──────────────────┐
+  ▼                        ▼
+Deploy Frontend         Trigger Render
+to Vercel (--prod)      Deploy Hook
+(amondnet/vercel-action) (curl POST)
+```
+
+### 🔑 Required GitHub Secrets
+
+ต้องเพิ่ม secrets เหล่านี้ใน **GitHub → Repository Settings → Secrets and variables → Actions**:
+
+| Secret | ใช้ใน | วิธีได้มา |
+|---|---|---|
+| `VERCEL_TOKEN` | `deploy.yml` | [vercel.com/account/tokens](https://vercel.com/account/tokens) → สร้าง token ใหม่ |
+| `VERCEL_ORG_ID` | `deploy.yml` | รัน `vercel link` ใน `web/` แล้วดูใน `.vercel/project.json` → `"orgId"` |
+| `VERCEL_PROJECT_ID` | `deploy.yml` | รัน `vercel link` ใน `web/` แล้วดูใน `.vercel/project.json` → `"projectId"` |
+| `RENDER_DEPLOY_HOOK_URL` | `deploy.yml` | Render Dashboard → Service → Settings → **Deploy Hook** → Copy URL |
+| `VITE_API_URL` | Vercel env | URL ของ backend บน Render เช่น `https://devvault-backend.onrender.com` (ตั้งค่าใน Vercel Dashboard → Project → Settings → Environment Variables → ชื่อ `vite_api_url`) |
+
+### 📋 Step-by-Step: วิธีตั้งค่า Secrets
+
+#### 1. `VERCEL_TOKEN`
+```bash
+# ไปที่ https://vercel.com/account/tokens
+# กด "Create Token" → ตั้งชื่อ เช่น "github-actions"
+# Copy token ที่ได้ → เพิ่มเป็น GitHub Secret ชื่อ VERCEL_TOKEN
+```
+
+#### 2. `VERCEL_ORG_ID` และ `VERCEL_PROJECT_ID`
+```bash
+# ติดตั้ง Vercel CLI
+npm i -g vercel
+
+# ไปที่ web/ แล้ว link กับ Vercel project
+cd web && vercel link
+
+# อ่านค่าจากไฟล์ที่สร้าง
+cat .vercel/project.json
+# {"orgId":"team_xxx","projectId":"prj_xxx"}
+```
+
+#### 3. `RENDER_DEPLOY_HOOK_URL`
+```
+1. เข้า Render Dashboard → https://dashboard.render.com
+2. เลือก Service "devvault-backend" (หรือสร้างใหม่โดย connect GitHub repo + ใช้ render.yaml)
+3. Settings → Deploy Hook → Copy URL
+4. เพิ่มเป็น GitHub Secret ชื่อ RENDER_DEPLOY_HOOK_URL
+```
+
+#### 4. `VITE_API_URL` (Vercel Environment Variable)
+```
+1. เข้า Vercel Dashboard → Project → Settings → Environment Variables
+2. เพิ่ม variable ชื่อ vite_api_url
+3. ใส่ค่าเป็น URL ของ backend บน Render เช่น https://devvault-backend.onrender.com
+4. เลือก Environment: Production
+```
+
+### 🗂️ Deployment Configs
+
+| ไฟล์ | หน้าที่ |
+|---|---|
+| `render.yaml` | Config สำหรับ Render — กำหนด runtime, build command, env vars |
+| `web/vercel.json` | Config สำหรับ Vercel — SPA routing rewrites + env binding |
