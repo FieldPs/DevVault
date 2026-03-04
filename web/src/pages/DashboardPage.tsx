@@ -1,9 +1,9 @@
-import { useAuth } from '../context/AuthContext'
+import { useAuthStore } from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 import { FileCode2, Component, Star, Plus } from 'lucide-react'
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuthStore()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
