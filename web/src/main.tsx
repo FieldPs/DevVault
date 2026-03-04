@@ -5,10 +5,14 @@ import { HeroUIProvider } from '@heroui/react'
 import './index.css'
 import App from './App.tsx'
 
+// Force dark mode on the HTML element so HeroUI + Tailwind dark: variants both work
+document.documentElement.classList.add('dark')
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <HeroUIProvider>
+      {/* className="dark" activates HeroUI's dark theme token set */}
+      <HeroUIProvider className="dark">
         <App />
       </HeroUIProvider>
     </BrowserRouter>
