@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import { connectDB } from './config/database'
+import authRoutes from './routes/auth'
 
 dotenv.config()
 
@@ -18,6 +19,9 @@ app.use(cors({
 }))
 app.use(express.json())
 app.use(cookieParser())
+
+// Routes
+app.use('/auth', authRoutes)
 
 // Health check
 app.get('/health', (_req, res) => {

@@ -1,20 +1,21 @@
-import { Routes, Route } from 'react-router-dom'
-import { Button } from '@heroui/react'
-
-function HomePage() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-950 text-white gap-4">
-      <h1 className="text-4xl font-bold">🗄️ DevVault</h1>
-      <p className="text-gray-400">The Developer's Second Brain</p>
-      <Button color="primary">Get Started</Button>
-    </div>
-  )
-}
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/layout/ProtectedRoute'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import DashboardPage from './pages/DashboardPage'
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </AuthProvider>
   )
 }
