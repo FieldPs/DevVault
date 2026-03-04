@@ -1,20 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import api from '../lib/api'
-
-interface User {
-  id: string
-  username: string
-  email: string
-}
-
-interface AuthContextType {
-  user: User | null
-  loading: boolean
-  login: (email: string, password: string) => Promise<void>
-  register: (username: string, email: string, password: string) => Promise<void>
-  logout: () => Promise<void>
-}
+import type { User, AuthContextType } from '../types/auth'
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
