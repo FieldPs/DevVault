@@ -13,6 +13,11 @@ const COOKIE_OPTIONS = {
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 }
 
+/** Signs a JWT for the given userId with a 7-day expiry. */
+function signToken(userId: string): string {
+  return jwt.sign({ userId }, process.env.JWT_SECRET || '', { expiresIn: '7d' })
+}
+
 // POST /auth/register
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
   const { username, email, password } = req.body
@@ -32,9 +37,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     const passwordHash = await bcrypt.hash(password, 10)
     const user = await User.create({ username, email, passwordHash })
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || '', {
-      expiresIn: '7d',
-    })
+    const token = signToken(String(user._id))
 
     res.cookie('token', token, COOKIE_OPTIONS)
     res.status(201).json({ user: { id: user._id, username: user.username, email: user.email } })
@@ -59,9 +62,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || '', {
-      expiresIn: '7d',
-    })
+    const token = signToken(String(user._id))
 
     res.cookie('token', token, COOKIE_OPTIONS)
     res.json({ user: { id: user._id, username: user.username, email: user.email } })
