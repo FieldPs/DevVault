@@ -1,45 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import type { ReactNode } from 'react'
-import api from '../lib/api'
-import type { User, AuthContextType } from '../types/auth'
-
-const AuthContext = createContext<AuthContextType | null>(null)
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    api.get('/auth/me')
-      .then(res => setUser(res.data.user))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false))
-  }, [])
-
-  const login = async (email: string, password: string) => {
-    const res = await api.post('/auth/login', { email, password })
-    setUser(res.data.user)
-  }
-
-  const register = async (username: string, email: string, password: string) => {
-    const res = await api.post('/auth/register', { username, email, password })
-    setUser(res.data.user)
-  }
-
-  const logout = async () => {
-    await api.post('/auth/logout')
-    setUser(null)
-  }
-
-  return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
-      {children}
-    </AuthContext.Provider>
-  )
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
-}
+// Auth state has been migrated to Zustand.
+// Import from `../store/authStore` (useAuthStore) instead.
+//
+// This file is intentionally left empty — it is kept so that any accidental
+// leftover import paths surface as "has no exported member" TypeScript errors
+// rather than a missing-module error, making them easy to locate and fix.

@@ -15,7 +15,7 @@ const COOKIE_OPTIONS = {
 
 /** Signs a JWT for the given userId with a 7-day expiry. */
 function signToken(userId: string): string {
-  return jwt.sign({ userId }, process.env.JWT_SECRET || '', { expiresIn: '7d' })
+  return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '7d' })
 }
 
 // POST /auth/register
