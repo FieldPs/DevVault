@@ -10,7 +10,7 @@
 | Chunk | Feature | Status |
 |-------|---------|--------|
 | 0 | Project Scaffolding & Infra | ✅ done |
-| 1 | Auth System (JWT) | 🔲 todo |
+| 1 | Auth System (JWT) | ✅ done |
 | 2 | Snippet CRUD (Backend + Basic UI) | 🔲 todo |
 | 3 | Split-View Editor + Live Preview ⭐ | 🔲 todo |
 | 4 | Recursive Folder System | 🔲 todo |
@@ -38,7 +38,7 @@
 ---
 
 ## Chunk 1 — Auth System (JWT HttpOnly Cookie)
-**Status**: 🔲 todo  
+**Status**: ✅ done  
 **Depends on**: Chunk 0  
 **Commit**: `feat: auth system with JWT HttpOnly cookie`
 
