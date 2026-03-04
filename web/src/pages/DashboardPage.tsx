@@ -1,5 +1,6 @@
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { FileCode2, Component, Star, Plus } from 'lucide-react'
 
 export default function DashboardPage() {
   const { user, logout } = useAuth()
@@ -129,9 +130,7 @@ export default function DashboardPage() {
             className="gradient-btn flex cursor-not-allowed items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white opacity-50"
             title="Coming in next update"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
+            <Plus className="h-4 w-4" />
             New Snippet
           </button>
         </div>
@@ -139,9 +138,9 @@ export default function DashboardPage() {
         {/* Stats strip */}
         <div className="animate-fade-in-up-delay mb-8 grid grid-cols-3 gap-4">
           {[
-            { label: 'Total Snippets', value: '0', icon: '📄' },
-            { label: 'Languages',      value: '0', icon: '🔤' },
-            { label: 'Favorites',      value: '0', icon: '⭐' },
+            { label: 'Total Snippets', value: '0', icon: <FileCode2 className="w-5 h-5 text-blue-400" /> },
+            { label: 'Components',     value: '0', icon: <Component className="w-5 h-5 text-purple-400" /> },
+            { label: 'Favorites',      value: '0', icon: <Star className="w-5 h-5 text-yellow-400" /> },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -152,7 +151,7 @@ export default function DashboardPage() {
                   <p className="text-xs font-medium text-gray-500">{stat.label}</p>
                   <p className="mt-1 text-2xl font-bold text-white">{stat.value}</p>
                 </div>
-                <span className="text-2xl">{stat.icon}</span>
+                <div className="p-2 rounded-lg bg-white/5">{stat.icon}</div>
               </div>
             </div>
           ))}
