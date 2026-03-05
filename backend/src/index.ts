@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import { connectDB } from './config/database'
 import authRoutes from './routes/auth'
+import componentRoutes from './routes/components'
 
 dotenv.config()
 
@@ -22,6 +23,7 @@ app.use(cookieParser())
 
 // Routes
 app.use('/auth', authRoutes)
+app.use('/components', componentRoutes)
 
 // Health check
 app.get('/health', (_req, res) => {

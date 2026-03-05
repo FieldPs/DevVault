@@ -1,9 +1,20 @@
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
 import StatsStrip from '@/components/dashboard/StatsStrip'
 import ComponentEmptyState from '@/components/dashboard/ComponentEmptyState'
+import ComponentList from '@/components/dashboard/ComponentList'
+import { useComponentStore } from '@/store/componentStore'
 
 export default function DashboardPage() {
+  const navigate = useNavigate()
+  const { components, loading, fetchComponents } = useComponentStore()
+
+  useEffect(() => {
+    fetchComponents()
+  }, [fetchComponents])
+
   return (
     <div className="page-bg min-h-screen">
 
@@ -34,17 +45,24 @@ export default function DashboardPage() {
             <p className="mt-1 text-sm text-gray-500">Manage and organise your React component library</p>
           </div>
           <button
-            disabled
-            className="gradient-btn flex cursor-not-allowed items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white opacity-50"
-            title="Coming soon"
+            onClick={() => navigate('/components/new')}
+            className="gradient-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white"
           >
             <Plus className="h-4 w-4" />
             New Component
           </button>
         </div>
 
-        <StatsStrip total={0} components={0} favorites={0} />
-        <ComponentEmptyState />
+        <StatsStrip total={components.length} components={components.filter(c => c.template === 'react').length} favorites={0} />
+
+        {loading && (
+          <div className="flex items-center justify-center py-20 text-gray-500 text-sm">
+            Loading…
+          </div>
+        )}
+
+        {!loading && components.length === 0 && <ComponentEmptyState />}
+        {!loading && components.length > 0 && <ComponentList components={components} />}
       </main>
     </div>
   )
