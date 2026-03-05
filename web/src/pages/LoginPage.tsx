@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
-import { AuthPageBackground } from '../components/auth/AuthPageBackground'
-import { BrandHeader } from '../components/auth/BrandHeader'
-import { FormInput } from '../components/auth/FormInput'
-import { ErrorAlert } from '../components/auth/ErrorAlert'
-import { SubmitButton } from '../components/auth/SubmitButton'
-import { getApiErrorMessage } from '../utils/errorUtils'
+import { useAuthStore } from '@/store/authStore'
+import { AuthPageBackground } from '@/components/auth/AuthPageBackground'
+import { BrandHeader } from '@/components/auth/BrandHeader'
+import { FormInput } from '@/components/auth/FormInput'
+import { ErrorAlert } from '@/components/auth/ErrorAlert'
+import { SubmitButton } from '@/components/auth/SubmitButton'
+import { parseError } from '@/utils/errorUtils'
 
 export default function LoginPage() {
   const { login } = useAuthStore()
@@ -25,7 +25,7 @@ export default function LoginPage() {
       await login(email, password)
       navigate('/dashboard')
     } catch (err) {
-      setError(getApiErrorMessage(err, 'Login failed'))
+      setError(parseError(err, 'Login failed'))
     } finally {
       setLoading(false)
     }

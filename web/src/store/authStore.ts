@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import api from '../lib/api'
-import type { User } from '../types/auth'
+import api from '@/lib/api'
+import type { User } from '@/types/auth'
 
 // ---------------------------------------------------------------------------
 // Shape
