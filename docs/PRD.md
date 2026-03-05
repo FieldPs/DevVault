@@ -26,22 +26,30 @@ The core goal is **fast reuse**: scroll a live visual gallery, spot the componen
 The main dashboard is a **scrollable grid of component cards**. Each card renders the stored component **live** using Sandpack `<SandpackPreview>` inside a sandboxed iframe.
 
 - No screenshots. No static thumbnails. **Actual running code** is displayed on every card.
-- Cards display: component title, language badge, privacy badge, and action buttons (open in editor, delete).
-- Clicking a card opens the full split-view editor for that component.
+- Cards display: component title, language badge, privacy badge, and action buttons (view, delete).
+- Clicking a card navigates to the **Component View page** for that component.
 - Gallery supports search (filter by title or language) and folder-based filtering via the sidebar.
 - Sandpack instances are **lazy-loaded** (via Intersection Observer) to maintain performance when the gallery contains many cards.
 
-### 2.2 Split-View Editor
+### 2.2 Component View Page — Tab UI
 
-Full editing environment for creating and modifying components.
+When opening a single component (`/components/:id`), the user sees a **tab interface** with two tabs:
 
-- **Left pane**: `<SandpackCodeEditor>` — full-featured in-browser code editor.
-- **Right pane**: `<SandpackPreview>` — live sandboxed preview that updates in real time.
+- **Preview tab** (default): Full interactive `<SandpackProvider>` + `<SandpackPreview>` — the rendered component is **clickable and fully interactive** (buttons work, calendars navigate, forms submit). This is not a screenshot.
+- **Code tab**: Read-only syntax-highlighted code display using `<SandpackCodeEditor readOnly />` — beautiful coloured syntax with no editing capability.
+- The page also provides an **"Edit"** button to navigate to the split-view editor.
+
+### 2.3 Split-View Editor
+
+Full editing environment for creating and modifying components. Used only on create/edit routes.
+
+- **Left pane**: `<SandpackCodeEditor>` — full-featured in-browser code editor with syntax highlighting.
+- **Right pane**: `<SandpackPreview>` — live sandboxed preview that updates in real time and is **interactive**.
 - Supports three sandbox templates: **React**, **Vanilla JS**, **HTML + CSS**.
 - Toggle between **real-time** mode (preview updates as you type) and **manual run** mode (press "Run" to execute).
 - Routes: `/components/new` (create) and `/components/:id/edit` (edit existing).
 
-### 2.3 Recursive Folder System
+### 2.4 Recursive Folder System
 
 Nested folder structure for organising components into logical groups.
 

@@ -12,7 +12,7 @@
 | 0 | Project Scaffolding & Infra | ✅ done |
 | 1 | Auth System (JWT) | ✅ done |
 | 2 | Component CRUD (Backend + Basic UI) | 🔲 todo |
-| 3 | Split-View Editor + Live Preview ⭐ | 🔲 todo |
+| 3 | Component View (Tab UI) + Split-View Editor ⭐ | 🔲 todo |
 | 4 | Recursive Folder System | 🔲 todo |
 | 5 | Visual Gallery (Live Sandpack Rendering) | 🔲 todo |
 | 6 | Privacy Levels (Private/Friends/Public) | 🔲 todo |
@@ -73,21 +73,33 @@
 
 ---
 
-## Chunk 3 — Split-View Editor + Live Preview ⭐
+## Chunk 3 — Component View (Tab UI) + Split-View Editor ⭐
 **Status**: 🔲 todo  
 **Depends on**: Chunk 2  
-**Commit**: `feat: split-view editor with sandpack live preview`
+**Commit**: `feat: component view tab UI and split-view editor with sandpack`
 
 ### Tasks
+
+#### Component View Page — `/components/:id`
 - [ ] **Web**: Install `@codesandbox/sandpack-react`
+- [ ] **Web**: หน้า `/components/:id` — Component View page
+  - Tab "Preview": `<SandpackProvider>` + `<SandpackPreview>` — fully **interactive** (กดได้ ใช้งานได้จริง)
+  - Tab "Code": `<SandpackCodeEditor readOnly />` — syntax highlight สีสวยงาม, ไม่ edit ได้
+- [ ] **Web**: ปุ่ม "Edit" บน view page → navigate ไป `/components/:id/edit`
+- [ ] **Web**: ปุ่ม "Copy Code" บน Code tab → copy code ไป clipboard
+
+#### Split-View Editor — `/components/new` + `/components/:id/edit`
 - [ ] **Web**: Component `<ComponentEditor>` — split-view layout
-  - ซ้าย: `<SandpackCodeEditor>`
-  - ขวา: `<SandpackPreview>`
+  - ซ้าย: `<SandpackCodeEditor>` — แก้ไขได้, syntax highlight
+  - ขวา: `<SandpackPreview>` — live preview, interactive
 - [ ] **Web**: Toggle Real-time / Manual Run (ปุ่ม "Run")
 - [ ] **Web**: เลือก template: React, Vanilla JS, HTML+CSS
-- [ ] **Web**: หน้า `/components/new` — ใช้ editor + บันทึกลง DB
-- [ ] **Web**: หน้า `/components/:id/edit` — โหลด code จาก DB มาใส่ editor
-- [ ] Verify: พิมพ์ React code → เห็น preview ทันที, Save → reload → code ยังอยู่
+- [ ] **Web**: Replace textarea ใน `/components/new` ด้วย `<ComponentEditor>`
+- [ ] **Web**: Replace textarea ใน `/components/:id/edit` ด้วย `<ComponentEditor>`
+- [ ] **Web**: เพิ่ม route `/components/:id` ใน App.tsx (ProtectedRoute)
+
+- [ ] Verify: View page → Preview tab แสดง interactive component (กดได้), Code tab แสดง highlight
+- [ ] Verify: Edit page → พิมพ์ React code → เห็น preview ทันที, Save → reload → code ยังอยู่
 
 ---
 
