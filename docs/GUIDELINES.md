@@ -75,11 +75,17 @@ final2/
 └── web/vercel.json                  # Vercel SPA rewrite rules
 ```
 
-### Core UX Concept — Visual Gallery
+### Core UX Concept — Three Views
 
-> **This is the most important concept in the app. Every agent must understand it before implementing any UI.**
+> **Every agent must understand all three views and when to use each.**
 
-The main dashboard is **not** a plain list of titles. It is a scrollable grid of **live-rendered component cards**. Each card runs the stored React/HTML/CSS code inside a Sandpack `<SandpackPreview>` iframe (read-only, no editor visible). The user sees the actual rendered output — buttons, forms, animations — directly in the card.
+The app has **three distinct views** for components, each with a different Sandpack usage:
+
+---
+
+#### A. Dashboard Gallery (Chunk 5)
+
+The main dashboard is a scrollable grid of **live-rendered component cards**. Each card uses `<SandpackPreview>` (read-only, no editor) so users see actual running output — buttons, calendars, forms — directly in the grid.
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -90,16 +96,90 @@ The main dashboard is **not** a plain list of titles. It is a scrollable grid of
 │ │ PREVIEW  │ │ │ PREVIEW  │ │ │ PREVIEW  │ │         │
 │ │ (iframe) │ │ │ (iframe) │ │ │ (iframe) │ │         │
 │ └──────────┘ │ └──────────┘ │ └──────────┘ │         │
-│ GlassButton  │ AuthForm     │ PricingCard  │         │
-│ React · 🔒  │ React · 👥  │ React · 🌐  │         │
+│ GlassButton  │ CalendarPicker│ PricingCard │         │
+│ React · 🔒  │ React · 👥   │ React · 🌐  │         │
 └──────────────┴──────────────┴──────────────┴─────────┘
 ```
 
-**Rules that follow from this concept:**
-- The gallery page must use `<SandpackPreview>` in a read-only/no-editor mode for each card — do **not** use screenshots or static images.
-- Each card renders independently — lazy-load Sandpack instances to avoid performance issues.
-- Clicking a card opens the full split-view editor (code + preview).
-- The `code` field in the Snippet model is the single source of truth — it is what gets rendered in both the gallery card and the editor.
+Rules:
+- Use `<SandpackPreview>` per card — no screenshots.
+- Lazy-load with Intersection Observer to avoid performance issues.
+- Clicking a card navigates to the **Component View page** (`/components/:id`).
+
+---
+
+#### B. Component View Page — `/components/:id` (Chunk 3)
+
+When viewing a single component, the page shows a **tab UI** with two tabs:
+
+```
+┌─────────────────────────────────────────────────────┐
+│ [Preview]  Code                                     │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│   ┌─── Live Sandpack iframe ───────────────────┐   │
+│   │                                             │   │
+│   │   < March 2026  >   < February 2020 >       │   │
+│   │   S  M  T  W  T  F  S                       │   │
+│   │   1  2  3  4  5  6  7                       │   │
+│   │   ...   [3]  ...                            │   │
+│   │                                             │   │
+│   └─────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│  Preview  [Code]                                    │
+├─────────────────────────────────────────────────────┤
+│  import {Calendar} from "@heroui/react";            │
+│  import {parseDate} from "@internationalized/date"; │
+│                                                     │
+│  export default function App() {                    │
+│    return (                                         │
+│      <div className="flex gap-x-4">                 │
+│        <Calendar aria-label="Date (No Selection)"/> │
+│      </div>                                         │
+│    );                                               │
+│  }                                                  │
+└─────────────────────────────────────────────────────┘
+```
+
+Rules:
+- **Preview tab**: Full interactive `<SandpackProvider>` + `<SandpackPreview>` — the rendered component is **clickable and fully functional** (not a screenshot, not read-only).
+- **Code tab**: Read-only syntax-highlighted view using `<SandpackCodeEditor readOnly />` — beautiful coloured syntax, no editing capability.
+- This page also has an **"Edit"** button that navigates to the split-view editor.
+- **Do NOT** use `dangerouslySetInnerHTML` for the code tab. Use Sandpack's code editor in read-only mode.
+
+---
+
+#### C. Create / Edit Page — `/components/new` and `/components/:id/edit` (Chunk 3)
+
+Full editing experience with a **side-by-side split view**:
+
+```
+┌─────────────────────────────────────────────────────┐
+│  /components/:id/edit                               │
+├──────────────────────┬──────────────────────────────┤
+│  SandpackCodeEditor  │  SandpackPreview             │
+│  (editable, full     │  (live update, interactive)  │
+│   syntax highlight)  │                              │
+│                      │                              │
+│  import React...     │  ┌──────────────────────┐    │
+│  export default      │  │  rendered output     │    │
+│  function App() {    │  │  (clickable)         │    │
+│    return <Button /> │  └──────────────────────┘    │
+│  }                   │                              │
+└──────────────────────┴──────────────────────────────┘
+```
+
+Rules:
+- Left pane: `<SandpackCodeEditor>` — editable, full syntax highlight.
+- Right pane: `<SandpackPreview>` — live interactive preview.
+- Template selector (React / Vanilla / HTML+CSS) at the top.
+- Save button stores `code` to the backend.
+
+---
+
+**The `code` field is always the single source of truth** — it drives all three views: gallery card, view tab, and editor.
 
 ---
 
@@ -527,13 +607,16 @@ if (!title || !code || !language) {
 #### XSS Prevention
 
 - Never use `dangerouslySetInnerHTML`.
-- For live code preview, use Sandpack's sandboxed iframe exclusively. It isolates execution from the host page.
+- For live code preview **and** read-only code display, use Sandpack exclusively — it isolates execution in a sandboxed iframe.
 
 ```tsx
-// ✅ Correct — sandboxed execution
+// ✅ Correct — interactive preview (View page / Gallery card)
 <SandpackProvider template="react">
   <SandpackPreview />
 </SandpackProvider>
+
+// ✅ Correct — read-only syntax-highlighted code (Code tab on View page)
+<SandpackCodeEditor readOnly />
 
 // ❌ Wrong — arbitrary code execution in the host DOM
 <div dangerouslySetInnerHTML={{ __html: userCode }} />
