@@ -6,10 +6,13 @@ import { verifyToken, AuthRequest } from '../middleware/auth'
 
 const router = Router()
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
+  secure: isProduction,
+  // cross-origin (Vercel ↔ Render) requires sameSite:'none' + secure:true
+  sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 }
 
