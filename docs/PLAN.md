@@ -56,20 +56,20 @@
 ---
 
 ## Chunk 2 — Component CRUD (Backend + Basic UI)
-**Status**: 🔲 todo  
+**Status**: ✅ done  
 **Depends on**: Chunk 1  
 **Commit**: `feat: component CRUD with basic list UI`
 
 ### Tasks
-- [ ] **Backend**: Component model (`title`, `description`, `code`, `language`, `template` (react/vanilla/html), `folderId`, `ownerId`, `privacy`)
-- [ ] **Backend**: `POST /components` — create
-- [ ] **Backend**: `GET /components` — list ของตัวเอง
-- [ ] **Backend**: `GET /components/:id` — single component
-- [ ] **Backend**: `PUT /components/:id` — update
-- [ ] **Backend**: `DELETE /components/:id` — delete
-- [ ] **Web**: หน้า `/dashboard` แสดง component list แบบ simple list/table (full gallery rendering comes in Chunk 5)
-- [ ] **Web**: สร้าง/แก้ไข component ด้วย `<textarea>` ธรรมดา (ยังไม่ใช้ Sandpack)
-- [ ] Verify: CRUD component ครบทุก operation ผ่าน UI ได้
+- [x] **Backend**: Component model (`title`, `description`, `code`, `language`, `template` (react/vanilla/html), `folderId`, `ownerId`, `privacy`)
+- [x] **Backend**: `POST /components` — create
+- [x] **Backend**: `GET /components` — list ของตัวเอง
+- [x] **Backend**: `GET /components/:id` — single component
+- [x] **Backend**: `PUT /components/:id` — update
+- [x] **Backend**: `DELETE /components/:id` — delete
+- [x] **Web**: หน้า `/dashboard` แสดง component list แบบ simple list/table (full gallery rendering comes in Chunk 5)
+- [x] **Web**: สร้าง/แก้ไข component ด้วย `<textarea>` ธรรมดา (ยังไม่ใช้ Sandpack)
+- [x] Verify: CRUD component ครบทุก operation ผ่าน UI ได้
 
 ---
 

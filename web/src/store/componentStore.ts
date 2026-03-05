@@ -1,0 +1,54 @@
+import { create } from 'zustand'
+import api from '@/lib/api'
+import type { Component, ComponentInput } from '@/types/component'
+
+interface ComponentState {
+  components: Component[]
+  loading: boolean
+  error: string | null
+
+  fetchComponents: () => Promise<void>
+  createComponent: (input: ComponentInput) => Promise<Component>
+  updateComponent: (id: string, input: ComponentInput) => Promise<void>
+  deleteComponent: (id: string) => Promise<void>
+  getComponent: (id: string) => Promise<Component>
+}
+
+export const useComponentStore = create<ComponentState>((set, get) => ({
+  components: [],
+  loading: false,
+  error: null,
+
+  fetchComponents: async () => {
+    set({ loading: true, error: null })
+    try {
+      const res = await api.get('/components')
+      set({ components: res.data.components, loading: false })
+    } catch {
+      set({ error: 'Failed to load components', loading: false })
+    }
+  },
+
+  createComponent: async (input) => {
+    const res = await api.post('/components', input)
+    const created: Component = res.data.component
+    set({ components: [created, ...get().components] })
+    return created
+  },
+
+  updateComponent: async (id, input) => {
+    const res = await api.put(`/components/${id}`, input)
+    const updated: Component = res.data.component
+    set({ components: get().components.map((c) => (c._id === id ? updated : c)) })
+  },
+
+  deleteComponent: async (id) => {
+    await api.delete(`/components/${id}`)
+    set({ components: get().components.filter((c) => c._id !== id) })
+  },
+
+  getComponent: async (id) => {
+    const res = await api.get(`/components/${id}`)
+    return res.data.component as Component
+  },
+}))
