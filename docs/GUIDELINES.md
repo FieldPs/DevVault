@@ -25,7 +25,11 @@ audience: AI Agents (Amelia, Winston, Quinn, etc.) and human developers
 
 ## 1. Project Overview
 
-**DevVault** is a developer code-snippet manager featuring a live-preview split-view editor, recursive folder system, social privacy controls, and a companion Flutter mobile app.
+**DevVault** is a personal **React Component library vault** — a place where developers save, organise, and rediscover their own reusable React components and code snippets.
+
+The core value proposition is the **Visual Gallery**: the list/dashboard view renders every stored component live inside a sandboxed iframe (powered by Sandpack), so a developer can scroll through their library and immediately see what each component looks like — no need to open files or remember names. When they spot the one they want, they can open it, copy the code, or fork it into a new project.
+
+Secondary features include a split-view editor (code left, live preview right), a recursive folder system for organising by project or category, privacy levels (private / friends-only / public) for optional sharing, and a read-only Flutter mobile companion for browsing the gallery on the go.
 
 ### Tech Stack
 
@@ -61,7 +65,7 @@ final2/
 │       ├── types/auth.ts            # User, AuthContextType interfaces
 │       └── utils/errorUtils.ts     # Axios error parsing utilities
 ├── docs/
-│   ├── PLAN.md                      # Chunk-based implementation tracker
+│   ├── PLAN.md                      # Feature-based implementation tracker
 │   ├── PRD.md                       # Product requirements
 │   └── GUIDELINES.md                # This file
 ├── .github/workflows/
@@ -70,6 +74,32 @@ final2/
 ├── render.yaml                      # Render backend service config
 └── web/vercel.json                  # Vercel SPA rewrite rules
 ```
+
+### Core UX Concept — Visual Gallery
+
+> **This is the most important concept in the app. Every agent must understand it before implementing any UI.**
+
+The main dashboard is **not** a plain list of titles. It is a scrollable grid of **live-rendered component cards**. Each card runs the stored React/HTML/CSS code inside a Sandpack `<SandpackPreview>` iframe (read-only, no editor visible). The user sees the actual rendered output — buttons, forms, animations — directly in the card.
+
+```
+┌──────────────────────────────────────────────────────┐
+│  Dashboard — My Components                  [+ New]  │
+├──────────────┬──────────────┬──────────────┬─────────┤
+│ ┌──────────┐ │ ┌──────────┐ │ ┌──────────┐ │   ...   │
+│ │ RENDERED │ │ │ RENDERED │ │ │ RENDERED │ │         │
+│ │ PREVIEW  │ │ │ PREVIEW  │ │ │ PREVIEW  │ │         │
+│ │ (iframe) │ │ │ (iframe) │ │ │ (iframe) │ │         │
+│ └──────────┘ │ └──────────┘ │ └──────────┘ │         │
+│ GlassButton  │ AuthForm     │ PricingCard  │         │
+│ React · 🔒  │ React · 👥  │ React · 🌐  │         │
+└──────────────┴──────────────┴──────────────┴─────────┘
+```
+
+**Rules that follow from this concept:**
+- The gallery page must use `<SandpackPreview>` in a read-only/no-editor mode for each card — do **not** use screenshots or static images.
+- Each card renders independently — lazy-load Sandpack instances to avoid performance issues.
+- Clicking a card opens the full split-view editor (code + preview).
+- The `code` field in the Snippet model is the single source of truth — it is what gets rendered in both the gallery card and the editor.
 
 ---
 
@@ -534,7 +564,7 @@ VITE_JWT_SECRET=my-secret-key
 
 ## 7. Adding New Features — Checklist
 
-When implementing a new Chunk, follow this pattern in order. Complete backend and frontend steps before marking the Chunk as done.
+When implementing a new feature, follow this pattern in order. Complete backend and frontend steps before marking it as done.
 
 ### Backend Steps
 
