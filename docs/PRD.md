@@ -1,48 +1,115 @@
-📝 Product Requirements Document: DevVault
+# Product Requirements Document: DevVault — The React Component Vault
 
-Project Name: DevVault (The Developer's Second Brain)
+| Field        | Detail                                      |
+|--------------|---------------------------------------------|
+| Project Name | DevVault — The React Component Vault        |
+| Platform     | Web (Vite / React) & Mobile (Flutter)       |
+| Deadline     | March 15, 2026                              |
+| Version      | 1.1                                         |
 
-Platform: Web (React/Next.js) & Mobile (Flutter)
+---
 
-Deadline: 15 มีนาคม 2569 (เหลือเวลาอีก 10 วัน) 
-1. Objective & Target Audience
-สร้างคลังเก็บ Code Snippets และ React Components ส่วนตัวที่สามารถรันพรีวิวได้จริง เพื่อให้นักพัฒนาสามารถนำโค้ดกลับมาใช้ซ้ำ (Reuse) ได้อย่างรวดเร็ว รองรับการจัดระเบียบแบบโฟลเดอร์ และกำหนดความเป็นส่วนตัวเพื่อแบ่งปันในชุมชนนักพัฒนา 
+## 1. Objective
 
-2. Core Features (Functional Requirements)
-2.1 Code Snippet Manager (The Sandbox)
+DevVault is a **personal React component and code snippet vault** — a private library where developers save, organise, and rediscover their own reusable components over time.
 
-    - Split-View Editor: ฝั่งซ้ายเป็น Code Editor (แนะนำใช้ Library: Monaco Editor หรือ CodeMirror) ฝั่งขวาเป็น Live Preview 
+The core goal is **fast reuse**: scroll a live visual gallery, spot the component by sight, then copy or open it immediately in the split-view editor. DevVault is not primarily a social code-sharing platform; sharing and social features are secondary and opt-in.
 
-    - Sandbox Environment: ใช้ Library เช่น Sandpack (โดย CodeSandbox) เพื่อรันโค้ดใน Browser Sandbox ที่แยกจาก Server หลักเพื่อความปลอดภัย 
+**Who is it for?** Individual developers who accumulate one-off components across projects and want a single searchable, visually browsable vault to retrieve them — instead of digging through old repos or gists.
 
-    - Real-time / Manual Run: รองรับทั้งการอัปเดตพรีวิวทันทีเมื่อพิมพ์ หรือกดปุ่ม 'Run' เพื่อประมวลผล 
+---
 
-    - Recursive Folder System: ระบบจัดการโฟลเดอร์ที่ซ้อนกันได้ไม่จำกัด เพื่อแยกโปรเจกต์หรือประเภทของ Component (เช่น Project A > UI > Buttons) 
+## 2. Core Features (Functional Requirements)
 
-    - Visual Gallery List: หน้าแรกแสดง Snippets ในรูปแบบ Card ที่มี Thumbnail LivePreview (Render ขนาดเล็ก) เพื่อให้สแกนหา Component ได้ด้วยตา 
+### 2.1 Visual Component Gallery ⭐ Primary Feature
 
-2.2 Auth & Social Privacy System
+The main dashboard is a **scrollable grid of component cards**. Each card renders the stored component **live** using Sandpack `<SandpackPreview>` inside a sandboxed iframe.
 
-    - Identity Management: ระบบสมัครสมาชิกและเข้าสู่ระบบด้วย JWT (JSON Web Token) ผ่าน HttpOnly Cookie 
+- No screenshots. No static thumbnails. **Actual running code** is displayed on every card.
+- Cards display: component title, language badge, privacy badge, and action buttons (open in editor, delete).
+- Clicking a card opens the full split-view editor for that component.
+- Gallery supports search (filter by title or language) and folder-based filtering via the sidebar.
+- Sandpack instances are **lazy-loaded** (via Intersection Observer) to maintain performance when the gallery contains many cards.
 
-    - Privacy Levels (RBAC): 
+### 2.2 Split-View Editor
 
-        Private: เห็นและใช้งานได้เฉพาะเจ้าของ (Default).
+Full editing environment for creating and modifying components.
 
-        Friends Only: เห็นเฉพาะผู้ใช้ที่กดยอมรับเป็นเพื่อน (Social Graph).
+- **Left pane**: `<SandpackCodeEditor>` — full-featured in-browser code editor.
+- **Right pane**: `<SandpackPreview>` — live sandboxed preview that updates in real time.
+- Supports three sandbox templates: **React**, **Vanilla JS**, **HTML + CSS**.
+- Toggle between **real-time** mode (preview updates as you type) and **manual run** mode (press "Run" to execute).
+- Routes: `/components/new` (create) and `/components/:id/edit` (edit existing).
 
-        Public: เปิดเป็นสาธารณะให้ทุกคนสามารถ Copy หรือเรียนรู้โค้ดได้.
+### 2.3 Recursive Folder System
 
-    - Social Connectivity: ระบบติดตาม (Follow) หรือเพิ่มเพื่อนเพื่อสร้างเครือข่ายนักพัฒนา 
+Nested folder structure for organising components into logical groups.
 
-3. Technical Stack & Architecture
+- Folders can be nested to any depth (e.g., `UI > Buttons > Icon Buttons`).
+- Sidebar displays a recursive folder tree with expand/collapse.
+- Actions: create folder, rename, delete, move component into a folder.
+- Breadcrumb navigation reflects the current folder path.
 
-เพื่อให้ได้รับคะแนนเต็มในส่วน Concept & Architecture (10%):
+### 2.4 Auth System
 
-    Frontend (Web): React / Next.js + HeroUI + Tailwind CSS (เน้น Glassmorphism) (รองรับ Offline Queue สำหรับจดไอเดียตอนไม่มีเน็ต)
+Secure authentication using industry-standard patterns.
 
-    Mobile: Flutter (มีแค่ Visual Gallery List ดู code และ copy ได้อย่างเดียว ไม่มี Split-View Editor เหมือน version WWeb)
+- Register and login with email + password.
+- Passwords hashed with **bcrypt**.
+- Sessions managed via **JWT stored in HttpOnly Cookie** — never exposed to JavaScript.
+- `GET /auth/me` endpoint for session verification.
+- All protected routes redirect to `/login` if the user is not authenticated.
 
-    Backend: Node.js + Express (พร้อมระบบ Circuit Breaker และ API Monitoring) 
+### 2.5 Privacy Levels
 
-    Database: MongoDB (เก็บข้อมูลความสัมพันธ์แบบ 2 Collections และทำ Aggregation Pipeline สำหรับสถิติ)
+Each component carries one of three privacy settings (default: **Private**):
+
+| Level        | Visibility                                                        |
+|--------------|-------------------------------------------------------------------|
+| Private      | Owner only — no one else can view or access it.                   |
+| Friends-only | Visible to users the owner mutually follows (social graph).       |
+| Public       | Visible to anyone; any visitor can view and copy the code.        |
+
+### 2.6 Social — Follow System
+
+Lightweight social layer to enable friends-only sharing.
+
+- Users can follow / unfollow other users.
+- Friends-only components are surfaced in the feeds of mutual followers.
+- Public profile pages (`/u/:username`) display public components.
+
+### 2.7 Flutter Mobile App (Read-Only)
+
+A companion mobile app for browsing the vault on the go.
+
+- Browse components in a scrollable gallery (grid or list).
+- Component detail view: **static syntax-highlighted code view** + one-tap **Copy** button.
+- Search by title or language.
+- Login via the same backend JWT API.
+- **No live Sandpack preview** — Sandpack requires a full browser environment; Flutter WebView cannot reliably sandbox arbitrary React execution. The mobile experience is intentionally read-and-copy only.
+
+---
+
+## 3. Technical Stack & Architecture
+
+| Layer            | Technology                                                                 |
+|------------------|----------------------------------------------------------------------------|
+| Web Frontend     | Vite + React 19 + TypeScript + Tailwind CSS + HeroUI + React Router v7 + Zustand |
+| Editor / Preview | Sandpack by CodeSandbox (`@codesandbox/sandpack-react`)                    |
+| Mobile           | Flutter (Dart) — read-only gallery + copy                                  |
+| Backend          | Node.js + Express + TypeScript                                             |
+| Database         | MongoDB Atlas + Mongoose ODM                                               |
+| Auth             | JWT + HttpOnly Cookie + bcrypt                                             |
+| Deployment       | Vercel (frontend) + Render (backend)                                       |
+
+---
+
+## 4. Non-Functional Requirements
+
+| Requirement        | Detail                                                                                                              |
+|--------------------|---------------------------------------------------------------------------------------------------------------------|
+| Security (Sandbox) | Sandpack runs entirely in the browser sandbox — **no user-submitted code ever executes on the server**.             |
+| Performance        | Gallery lazy-loads Sandpack instances using Intersection Observer to prevent rendering all iframes simultaneously.  |
+| API Security       | All non-public API routes are protected by JWT verification middleware; unauthenticated requests receive `401`.     |
+| CORS Policy        | CORS is restricted to the production frontend URL only; wildcard origins are not permitted in production.           |
+| Mobile Scope       | Flutter app is intentionally read-only; no editor or live preview to avoid unreliable sandboxing in WebView.        |
