@@ -108,10 +108,10 @@ Update the Chunk status in `docs/PLAN.md`:
 ```bash
 git checkout develop
 git pull origin develop
-git checkout -b feat/chunk-N-description
+git checkout -b feat/description
 ```
 
-Replace `N` with the chunk number and `description` with a short kebab-case summary (e.g., `feat/chunk-2-snippet-crud`).
+Use a short kebab-case summary of the feature (e.g., `feat/snippet-crud`, `feat/folder-system`, `feat/privacy-levels`).
 
 **Step 4 — Implement**
 
@@ -139,7 +139,7 @@ See [Section 3](#3-git-branch-convention) for commit message rules.
 Push your branch and open a pull request targeting `develop`. Never push directly to `main`.
 
 ```bash
-git push origin feat/chunk-N-description
+git push origin feat/description
 ```
 
 ### Workflow Diagram
@@ -148,7 +148,7 @@ git push origin feat/chunk-N-description
 flowchart TD
     A[Read docs/PLAN.md] --> B[Find next todo Chunk]
     B --> C[Set status: 🔄 in-progress]
-    C --> D[git checkout -b feat/chunk-N-desc from develop]
+    C --> D[git checkout -b feat/feature-name from develop]
     D --> E[Implement per Chunk task list]
     E --> F[Set status: ✅ done in PLAN.md]
     F --> G[Conventional commit]
@@ -169,7 +169,7 @@ flowchart TD
 |---|---|---|
 | `main` | Production — auto-deploys via CI/CD | **Never commit directly.** Merges from `develop` only. |
 | `develop` | Integration branch | Merge feature branches here. Keep it stable. |
-| `feat/chunk-N-description` | Feature work per Chunk | Branch from `develop`. Example: `feat/chunk-2-snippet-crud` |
+| `feat/description` | Feature branches | Branch from `develop`. Example: `feat/snippet-crud`, `feat/folder-system` |
 | `fix/description` | Bug fixes | Branch from `develop`. Example: `fix/auth-cookie-expiry` |
 | `ci/description` | CI/CD changes only | Example: `ci/add-lint-step` |
 
@@ -181,18 +181,18 @@ gitGraph
     branch develop
     checkout develop
     commit id: "scaffold"
-    branch feat/chunk-1-auth
-    checkout feat/chunk-1-auth
+    branch feat/auth-system
+    checkout feat/auth-system
     commit id: "auth routes"
     commit id: "jwt cookie"
     checkout develop
-    merge feat/chunk-1-auth id: "✅ chunk-1"
-    branch feat/chunk-2-snippet-crud
-    checkout feat/chunk-2-snippet-crud
+    merge feat/auth-system id: "✅ auth"
+    branch feat/snippet-crud
+    checkout feat/snippet-crud
     commit id: "snippet model"
     commit id: "CRUD routes"
     checkout develop
-    merge feat/chunk-2-snippet-crud id: "✅ chunk-2"
+    merge feat/snippet-crud id: "✅ snippet-crud"
     checkout main
     merge develop id: "🚀 release"
 ```
