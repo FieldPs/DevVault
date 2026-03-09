@@ -76,7 +76,7 @@ export default function ComponentFormPage() {
 
   return (
     <div className="page-bg min-h-screen">
-      <div className="mx-auto max-w-5xl px-6 py-10">
+      <div className="mx-auto w-full max-w-[1600px] px-6 py-10">
         <div className="mb-6 flex items-center gap-3">
           <button
             onClick={() => navigate('/dashboard')}
