@@ -12,7 +12,7 @@
 | 0 | Project Scaffolding & Infra | ✅ done |
 | 1 | Auth System (JWT) | ✅ done |
 | 2 | Component CRUD (Backend + Basic UI) | 🔲 todo |
-| 3 | Component View (Tab UI) + Split-View Editor ⭐ | 🔲 todo |
+| 3 | Component View (Tab UI) + Split-View Editor ⭐ | ✅ done |
 | 4 | Recursive Folder System | 🔲 todo |
 | 5 | Visual Gallery (Live Sandpack Rendering) | 🔲 todo |
 | 6 | Privacy Levels (Private/Friends/Public) | 🔲 todo |
@@ -74,7 +74,7 @@
 ---
 
 ## Chunk 3 — Component View (Tab UI) + Split-View Editor ⭐
-**Status**: 🔲 todo  
+**Status**: ✅ done  
 **Depends on**: Chunk 2  
 **Commit**: `feat: component view tab UI and split-view editor with sandpack`
 
