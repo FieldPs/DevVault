@@ -9,7 +9,7 @@ import {
 import Navbar from '@/components/layout/Navbar'
 import { useComponentStore } from '@/store/componentStore'
 import type { Component } from '@/types/component'
-import { getSandpackTemplate, getSandpackFiles, detectDependencies, detectExtraFiles } from '@/utils/sandpackUtils'
+import { getSandpackTemplate, getSandpackFiles, detectDependencies, detectExtraFiles, getExternalResources } from '@/utils/sandpackUtils'
 
 type Tab = 'preview' | 'code'
 
@@ -137,6 +137,7 @@ export default function ComponentViewPage() {
                     theme="dark"
                     files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                     customSetup={{ dependencies: detectedDeps }}
+                    options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template) }}
                   >
                     <SandpackPreview
                       style={{ minHeight: 600 }}
@@ -176,6 +177,7 @@ export default function ComponentViewPage() {
                       theme="dark"
                       files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                       customSetup={{ dependencies: detectedDeps }}
+                      options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template) }}
                     >
                       <SandpackCodeEditor
                         readOnly

@@ -14,6 +14,7 @@ import {
   getSandpackFiles,
   detectDependencies,
   detectExtraFiles,
+  getExternalResources,
 } from '@/utils/sandpackUtils'
 
 interface ComponentEditorProps {
@@ -97,10 +98,10 @@ export default function ComponentEditor({
   const detectedDeps = useMemo(() => detectDependencies(code), [code])
   const extraFiles   = useMemo(() => detectExtraFiles(detectedDeps), [detectedDeps])
 
-  // Key changes when the set of packages changes → triggers SandpackProvider remount → installs new packages
+  // Include template in key so switching template always remounts the provider
   const sandpackKey = useMemo(
-    () => Object.keys(detectedDeps).sort().join(','),
-    [detectedDeps]
+    () => `${template}:${Object.keys(detectedDeps).sort().join(',')}`,
+    [template, detectedDeps]
   )
 
   const sandpackTemplate = getSandpackTemplate(template)
@@ -160,6 +161,8 @@ export default function ComponentEditor({
             recompileMode: realtimeMode ? 'immediate' : 'delayed',
             recompileDelay: realtimeMode ? 0 : 9_999_999,
             autorun: realtimeMode,
+            bundlerTimeOut: 60000,
+            externalResources: getExternalResources(template),
           }}
         >
           <FileSyncer template={template} onChange={onChange} onCssChange={onCssChange} />
