@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   SandpackProvider,
   SandpackLayout,
@@ -12,14 +12,13 @@ import type { ComponentTemplate } from '@/types/component'
 import {
   getSandpackTemplate,
   getSandpackFiles,
-  parseDependencies,
+  detectDependencies,
 } from '@/utils/sandpackUtils'
 
 interface ComponentEditorProps {
   code: string
   cssCode?: string
   template: ComponentTemplate
-  dependencies?: string[]
   onChange: (code: string) => void
   onCssChange?: (css: string) => void
   onTemplateChange: (t: ComponentTemplate) => void
@@ -86,7 +85,6 @@ export default function ComponentEditor({
   code,
   cssCode,
   template,
-  dependencies,
   onChange,
   onCssChange,
   onTemplateChange,
@@ -94,9 +92,17 @@ export default function ComponentEditor({
   const [realtimeMode, setRealtimeMode] = useState(false)
   const [showConsole, setShowConsole] = useState(false)
 
+  // Auto-detect dependencies from import statements
+  const detectedDeps = useMemo(() => detectDependencies(code), [code])
+
+  // Key changes when the set of packages changes → triggers SandpackProvider remount → installs new packages
+  const sandpackKey = useMemo(
+    () => Object.keys(detectedDeps).sort().join(','),
+    [detectedDeps]
+  )
+
   const sandpackTemplate = getSandpackTemplate(template)
   const files = getSandpackFiles(template, code, cssCode)
-  const depRecord = parseDependencies(dependencies ?? [])
 
   return (
     <div className="flex flex-col gap-3">
@@ -143,10 +149,11 @@ export default function ComponentEditor({
       {/* Sandpack */}
       <div className="rounded-xl overflow-hidden border border-white/10" style={{ minHeight: 700 }}>
         <SandpackProvider
+          key={sandpackKey}
           template={sandpackTemplate}
           theme="dark"
           files={files}
-          customSetup={{ dependencies: depRecord }}
+          customSetup={{ dependencies: detectedDeps }}
           options={{
             recompileMode: realtimeMode ? 'immediate' : 'delayed',
             recompileDelay: realtimeMode ? 0 : 9_999_999,
