@@ -6,8 +6,10 @@ export interface Component {
   title: string
   description?: string
   code: string
+  cssCode?: string
   language: string
   template: ComponentTemplate
+  dependencies?: string[]
   folderId?: string
   ownerId: string
   privacy: ComponentPrivacy
@@ -19,7 +21,9 @@ export interface ComponentInput {
   title: string
   description?: string
   code: string
+  cssCode?: string
   language: string
   template: ComponentTemplate
   privacy: ComponentPrivacy
+  dependencies?: string[]
 }

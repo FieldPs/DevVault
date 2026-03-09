@@ -4,25 +4,14 @@ import {
   SandpackProvider,
   SandpackPreview,
   SandpackCodeEditor,
+  SandpackConsole,
 } from '@codesandbox/sandpack-react'
-import type { SandpackPredefinedTemplate } from '@codesandbox/sandpack-react'
 import Navbar from '@/components/layout/Navbar'
 import { useComponentStore } from '@/store/componentStore'
-import type { Component, ComponentTemplate } from '@/types/component'
+import type { Component } from '@/types/component'
+import { getSandpackTemplate, getSandpackFiles, parseDependencies } from '@/utils/sandpackUtils'
 
 type Tab = 'preview' | 'code'
-
-function getFileKey(template: ComponentTemplate): string {
-  if (template === 'react') return '/App.js'
-  if (template === 'vanilla') return '/index.js'
-  return '/index.html'
-}
-
-function getSandpackTemplate(template: ComponentTemplate): SandpackPredefinedTemplate {
-  if (template === 'react') return 'react'
-  if (template === 'vanilla') return 'vanilla'
-  return 'static'
-}
 
 export default function ComponentViewPage() {
   const { id } = useParams<{ id: string }>()
@@ -34,6 +23,7 @@ export default function ComponentViewPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<Tab>('preview')
   const [copied, setCopied] = useState(false)
+  const [showConsole, setShowConsole] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -138,12 +128,25 @@ export default function ComponentViewPage() {
                   <SandpackProvider
                     template={getSandpackTemplate(component.template)}
                     theme="dark"
-                    files={{ [getFileKey(component.template)]: component.code }}
+                    files={getSandpackFiles(component.template, component.code, component.cssCode)}
+                    customSetup={{ dependencies: parseDependencies(component.dependencies ?? []) }}
                   >
                     <SandpackPreview
-                      style={{ minHeight: 480 }}
+                      style={{ minHeight: 600 }}
                       showNavigator={false}
                     />
+                    {/* Collapsible console */}
+                    <button
+                      type="button"
+                      onClick={() => setShowConsole((v) => !v)}
+                      className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-white/5 border-t border-white/10 transition-colors"
+                    >
+                      <span>Console</span>
+                      <span>{showConsole ? '▲' : '▼'}</span>
+                    </button>
+                    {showConsole && (
+                      <SandpackConsole style={{ maxHeight: 150, overflow: 'auto' }} />
+                    )}
                   </SandpackProvider>
                 )}
 
@@ -164,13 +167,14 @@ export default function ComponentViewPage() {
                     <SandpackProvider
                       template={getSandpackTemplate(component.template)}
                       theme="dark"
-                      files={{ [getFileKey(component.template)]: component.code }}
+                      files={getSandpackFiles(component.template, component.code, component.cssCode)}
+                      customSetup={{ dependencies: parseDependencies(component.dependencies ?? []) }}
                     >
                       <SandpackCodeEditor
                         readOnly
                         showTabs
                         showLineNumbers
-                        style={{ minHeight: 480 }}
+                        style={{ minHeight: 600 }}
                       />
                     </SandpackProvider>
                   </div>

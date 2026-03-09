@@ -4,93 +4,99 @@ import {
   SandpackLayout,
   SandpackCodeEditor,
   SandpackPreview,
+  SandpackConsole,
   useActiveCode,
   useSandpack,
 } from '@codesandbox/sandpack-react'
-import type { SandpackPredefinedTemplate } from '@codesandbox/sandpack-react'
 import type { ComponentTemplate } from '@/types/component'
+import {
+  getSandpackTemplate,
+  getSandpackFiles,
+  parseDependencies,
+} from '@/utils/sandpackUtils'
 
 interface ComponentEditorProps {
   code: string
+  cssCode?: string
   template: ComponentTemplate
+  dependencies?: string[]
   onChange: (code: string) => void
+  onCssChange?: (css: string) => void
   onTemplateChange: (t: ComponentTemplate) => void
 }
 
-function getFileKey(template: ComponentTemplate): string {
-  if (template === 'react') return '/App.js'
-  if (template === 'vanilla') return '/index.js'
-  return '/index.html'
-}
-
-function getSandpackTemplate(template: ComponentTemplate): SandpackPredefinedTemplate {
-  if (template === 'react') return 'react'
-  if (template === 'vanilla') return 'vanilla'
-  return 'static'
-}
-
-const TEMPLATE_LABELS: Record<ComponentTemplate, string> = {
+const TEMPLATE_LABELS: Partial<Record<ComponentTemplate, string>> = {
   react: 'React',
-  vanilla: 'Vanilla JS',
   html: 'HTML + CSS',
 }
 
-/** Inner component — must live inside SandpackProvider to use hooks */
-function CodeSyncAndPreview({
-  realtimeMode,
+/** Syncs active file(s) back to parent — must live inside SandpackProvider */
+function FileSyncer({
+  template,
   onChange,
+  onCssChange,
 }: {
-  realtimeMode: boolean
+  template: ComponentTemplate
   onChange: (code: string) => void
+  onCssChange?: (css: string) => void
 }) {
   const { code } = useActiveCode()
   const { sandpack } = useSandpack()
 
-  // Sync code changes back to parent form state
+  // React mode: sync active file
   useEffect(() => {
-    onChange(code)
+    if (template !== 'html') {
+      onChange(code)
+    }
   }, [code]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // HTML+CSS mode: sync both files
+  useEffect(() => {
+    if (template === 'html') {
+      onChange(sandpack.files['/index.html']?.code ?? '')
+      onCssChange?.(sandpack.files['/styles.css']?.code ?? '')
+    }
+  }, [sandpack.files]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  return null
+}
+
+/** Run button + preview — must live inside SandpackProvider */
+function PreviewPanel({ realtimeMode }: { realtimeMode: boolean }) {
+  const { sandpack } = useSandpack()
+
   return (
-    <SandpackLayout style={{ minHeight: 500 }}>
-      <SandpackCodeEditor
-        style={{ minHeight: 500 }}
-        showTabs
-        showLineNumbers
-        showInlineErrors
-      />
-      <div style={{ position: 'relative', flex: 1, minHeight: 500 }}>
-        {!realtimeMode && (
-          <button
-            type="button"
-            onClick={() => sandpack.runSandpack()}
-            style={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              zIndex: 10,
-            }}
-            className="rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors"
-          >
-            ▶ Run
-          </button>
-        )}
-        <SandpackPreview style={{ minHeight: 500 }} showNavigator={false} />
-      </div>
-    </SandpackLayout>
+    <div style={{ position: 'relative', flex: 1, minHeight: 700 }}>
+      {!realtimeMode && (
+        <button
+          type="button"
+          onClick={() => sandpack.runSandpack()}
+          style={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}
+          className="rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors"
+        >
+          ▶ Run
+        </button>
+      )}
+      <SandpackPreview style={{ minHeight: 700 }} showNavigator={false} />
+    </div>
   )
 }
 
 export default function ComponentEditor({
   code,
+  cssCode,
   template,
+  dependencies,
   onChange,
+  onCssChange,
   onTemplateChange,
 }: ComponentEditorProps) {
-  const [realtimeMode, setRealtimeMode] = useState(true)
+  const [realtimeMode, setRealtimeMode] = useState(false)
+  const [showConsole, setShowConsole] = useState(false)
 
-  const fileKey = getFileKey(template)
   const sandpackTemplate = getSandpackTemplate(template)
+  const files = getSandpackFiles(template, code, cssCode)
+  const depRecord = parseDependencies(dependencies ?? [])
 
   return (
     <div className="flex flex-col gap-3">
@@ -100,7 +106,7 @@ export default function ComponentEditor({
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-gray-400">Template:</span>
           <div className="flex rounded-xl border border-white/10 overflow-hidden">
-            {(['react', 'vanilla', 'html'] as ComponentTemplate[]).map((t) => (
+            {(['react', 'html'] as ComponentTemplate[]).map((t) => (
               <button
                 key={t}
                 type="button"
@@ -117,7 +123,7 @@ export default function ComponentEditor({
           </div>
         </div>
 
-        {/* Run mode toggle */}
+        {/* Mode toggle */}
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-gray-400">Mode:</span>
           <button
@@ -134,21 +140,46 @@ export default function ComponentEditor({
         </div>
       </div>
 
-      {/* Sandpack split view */}
-      <div className="rounded-xl overflow-hidden border border-white/10" style={{ minHeight: 500 }}>
+      {/* Sandpack */}
+      <div className="rounded-xl overflow-hidden border border-white/10" style={{ minHeight: 700 }}>
         <SandpackProvider
           template={sandpackTemplate}
           theme="dark"
-          files={{ [fileKey]: code }}
+          files={files}
+          customSetup={{ dependencies: depRecord }}
           options={{
             recompileMode: realtimeMode ? 'immediate' : 'delayed',
-            recompileDelay: realtimeMode ? 0 : 9999999,
+            recompileDelay: realtimeMode ? 0 : 9_999_999,
             autorun: realtimeMode,
           }}
         >
-          <CodeSyncAndPreview realtimeMode={realtimeMode} onChange={onChange} />
+          <FileSyncer template={template} onChange={onChange} onCssChange={onCssChange} />
+
+          <SandpackLayout style={{ minHeight: 700 }}>
+            <SandpackCodeEditor
+              style={{ minHeight: 700 }}
+              showTabs
+              showLineNumbers
+              showInlineErrors
+            />
+            <PreviewPanel realtimeMode={realtimeMode} />
+          </SandpackLayout>
+
+          {/* Collapsible console */}
+          <button
+            type="button"
+            onClick={() => setShowConsole((v) => !v)}
+            className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-medium text-gray-400 hover:text-white bg-white/5 border-t border-white/10 transition-colors"
+          >
+            <span>Console</span>
+            <span>{showConsole ? '▲' : '▼'}</span>
+          </button>
+          {showConsole && (
+            <SandpackConsole style={{ maxHeight: 150, overflow: 'auto' }} />
+          )}
         </SandpackProvider>
       </div>
     </div>
   )
 }
+
