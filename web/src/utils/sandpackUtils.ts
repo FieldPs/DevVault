@@ -21,6 +21,33 @@ const BUILTIN_PACKAGES = new Set([
   'path', 'fs', 'os', 'url', 'util', 'events', 'stream', 'http', 'https',
 ])
 
+// Peer/companion deps required when certain packages are used
+const COMPANION_DEPS: Record<string, Record<string, string>> = {
+  '@heroui/react':      { tailwindcss: 'latest', 'framer-motion': 'latest' },
+  '@nextui-org/react':  { tailwindcss: 'latest', 'framer-motion': 'latest' },
+  'framer-motion':      {},
+}
+
+// Extra Sandpack files to inject when certain packages are detected
+// (e.g. Tailwind CDN in index.html so HeroUI utility classes render correctly)
+const HEROUI_INDEX_HTML = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sandbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>`
+
+const COMPANION_FILES: Record<string, Record<string, string>> = {
+  '@heroui/react':     { '/public/index.html': HEROUI_INDEX_HTML },
+  '@nextui-org/react': { '/public/index.html': HEROUI_INDEX_HTML },
+}
+
 export function detectDependencies(code: string): Record<string, string> {
   const deps: Record<string, string> = {}
 
@@ -49,7 +76,23 @@ export function detectDependencies(code: string): Record<string, string> {
     deps[pkgName] = 'latest'
   }
 
+  // Inject companion/peer deps (e.g. tailwindcss when @heroui/react is used)
+  for (const pkgName of Object.keys(deps)) {
+    const companions = COMPANION_DEPS[pkgName]
+    if (companions) Object.assign(deps, companions)
+  }
+
   return deps
+}
+
+/** Extra files to inject into Sandpack based on detected deps (e.g. Tailwind CDN HTML) */
+export function detectExtraFiles(deps: Record<string, string>): Record<string, string> {
+  const files: Record<string, string> = {}
+  for (const pkgName of Object.keys(deps)) {
+    const extra = COMPANION_FILES[pkgName]
+    if (extra) Object.assign(files, extra)
+  }
+  return files
 }
 
 export function parseDependencies(deps: string[]): Record<string, string> {

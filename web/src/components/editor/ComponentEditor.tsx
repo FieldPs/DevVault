@@ -13,6 +13,7 @@ import {
   getSandpackTemplate,
   getSandpackFiles,
   detectDependencies,
+  detectExtraFiles,
 } from '@/utils/sandpackUtils'
 
 interface ComponentEditorProps {
@@ -94,6 +95,7 @@ export default function ComponentEditor({
 
   // Auto-detect dependencies from import statements
   const detectedDeps = useMemo(() => detectDependencies(code), [code])
+  const extraFiles   = useMemo(() => detectExtraFiles(detectedDeps), [detectedDeps])
 
   // Key changes when the set of packages changes → triggers SandpackProvider remount → installs new packages
   const sandpackKey = useMemo(
@@ -102,7 +104,7 @@ export default function ComponentEditor({
   )
 
   const sandpackTemplate = getSandpackTemplate(template)
-  const files = getSandpackFiles(template, code, cssCode)
+  const files = { ...getSandpackFiles(template, code, cssCode), ...extraFiles }
 
   return (
     <div className="flex flex-col gap-3">

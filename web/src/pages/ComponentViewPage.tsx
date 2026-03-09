@@ -9,7 +9,7 @@ import {
 import Navbar from '@/components/layout/Navbar'
 import { useComponentStore } from '@/store/componentStore'
 import type { Component } from '@/types/component'
-import { getSandpackTemplate, getSandpackFiles, detectDependencies } from '@/utils/sandpackUtils'
+import { getSandpackTemplate, getSandpackFiles, detectDependencies, detectExtraFiles } from '@/utils/sandpackUtils'
 
 type Tab = 'preview' | 'code'
 
@@ -30,6 +30,7 @@ export default function ComponentViewPage() {
     () => (component ? detectDependencies(component.code) : {}),
     [component]
   )
+  const extraFiles = useMemo(() => detectExtraFiles(detectedDeps), [detectedDeps])
 
   useEffect(() => {
     if (!id) return
@@ -134,7 +135,7 @@ export default function ComponentViewPage() {
                   <SandpackProvider
                     template={getSandpackTemplate(component.template)}
                     theme="dark"
-                    files={getSandpackFiles(component.template, component.code, component.cssCode)}
+                    files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                     customSetup={{ dependencies: detectedDeps }}
                   >
                     <SandpackPreview
@@ -173,7 +174,7 @@ export default function ComponentViewPage() {
                     <SandpackProvider
                       template={getSandpackTemplate(component.template)}
                       theme="dark"
-                      files={getSandpackFiles(component.template, component.code, component.cssCode)}
+                      files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                       customSetup={{ dependencies: detectedDeps }}
                     >
                       <SandpackCodeEditor
