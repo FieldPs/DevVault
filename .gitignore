@@ -7,3 +7,7 @@ dist/
 # BMAD agent files
 _bmad/
 _bmad-output/
+
+# Sandbox (local dev playground — not part of the project)
+sandbox/node_modules/
+sandbox/dist/

@@ -137,7 +137,7 @@ export default function ComponentViewPage() {
                     theme="dark"
                     files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                     customSetup={{ dependencies: detectedDeps }}
-                    options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template) }}
+                    options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template, detectedDeps) }}
                   >
                     <SandpackPreview
                       style={{ minHeight: 600 }}
@@ -177,7 +177,7 @@ export default function ComponentViewPage() {
                       theme="dark"
                       files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                       customSetup={{ dependencies: detectedDeps }}
-                      options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template) }}
+                      options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template, detectedDeps) }}
                     >
                       <SandpackCodeEditor
                         readOnly
