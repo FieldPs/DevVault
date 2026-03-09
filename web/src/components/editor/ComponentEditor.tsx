@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   SandpackProvider,
   SandpackLayout,
@@ -43,20 +43,26 @@ function FileSyncer({
 }) {
   const { code } = useActiveCode()
   const { sandpack } = useSandpack()
+  const lastCodeRef = useRef<string>('')
+  const lastCssRef  = useRef<string>('')
 
-  // React mode: sync active file
+  // React mode: only propagate when string actually changed
   useEffect(() => {
-    if (template !== 'html') {
+    if (template !== 'html' && code !== lastCodeRef.current) {
+      lastCodeRef.current = code
       onChange(code)
     }
   }, [code]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // HTML+CSS mode: sync both files
+  // HTML+CSS mode: only propagate when either file string actually changed
   useEffect(() => {
-    if (template === 'html') {
-      onChange(sandpack.files['/index.html']?.code ?? '')
-      onCssChange?.(sandpack.files['/styles.css']?.code ?? '')
-    }
+    if (template !== 'html') return
+    const html = sandpack.files['/index.html']?.code ?? ''
+    const css  = sandpack.files['/styles.css']?.code  ?? ''
+    let changed = false
+    if (html !== lastCodeRef.current) { lastCodeRef.current = html; changed = true; onChange(html) }
+    if (css  !== lastCssRef.current)  { lastCssRef.current  = css;  changed = true; onCssChange?.(css) }
+    void changed
   }, [sandpack.files]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return null
@@ -105,7 +111,10 @@ export default function ComponentEditor({
   )
 
   const sandpackTemplate = getSandpackTemplate(template)
-  const files = { ...getSandpackFiles(template, code, cssCode), ...extraFiles }
+  const files = useMemo(
+    () => ({ ...getSandpackFiles(template, code, cssCode), ...extraFiles }),
+    [template, code, cssCode, extraFiles] // eslint-disable-line react-hooks/exhaustive-deps
+  )
 
   return (
     <div className="flex flex-col gap-3">
@@ -162,7 +171,7 @@ export default function ComponentEditor({
             recompileDelay: realtimeMode ? 0 : 9_999_999,
             autorun: realtimeMode,
             bundlerTimeOut: 60000,
-            externalResources: getExternalResources(template),
+            externalResources: getExternalResources(template, detectedDeps),
           }}
         >
           <FileSyncer template={template} onChange={onChange} onCssChange={onCssChange} />
