@@ -6,16 +6,19 @@ import { parseError } from '@/utils/errorUtils'
 import type { ComponentInput, ComponentTemplate, ComponentPrivacy } from '@/types/component'
 import ComponentEditor from '@/components/editor/ComponentEditor'
 
-const LANGUAGES = ['tsx', 'jsx', 'ts', 'js', 'html', 'css']
 const PRIVACY_OPTIONS: ComponentPrivacy[] = ['private', 'friends', 'public']
+
+const getLang = (t: ComponentTemplate) => (t === 'react' ? 'tsx' : 'html')
 
 const DEFAULT_FORM: ComponentInput = {
   title: '',
   description: '',
   code: '',
+  cssCode: '',
   language: 'tsx',
   template: 'react',
   privacy: 'private',
+  dependencies: [],
 }
 
 export default function ComponentFormPage() {
@@ -37,9 +40,11 @@ export default function ComponentFormPage() {
           title: c.title,
           description: c.description ?? '',
           code: c.code,
+          cssCode: c.cssCode ?? '',
           language: c.language,
           template: c.template,
           privacy: c.privacy,
+          dependencies: c.dependencies ?? [],
         })
       )
       .catch(() => setError('Failed to load component'))
@@ -54,10 +59,14 @@ export default function ComponentFormPage() {
     setError('')
     setLoading(true)
     try {
+      const payload: ComponentInput = {
+        ...form,
+        language: getLang(form.template),
+      }
       if (isEdit && id) {
-        await updateComponent(id, form)
+        await updateComponent(id, payload)
       } else {
-        await createComponent(form)
+        await createComponent(payload)
       }
       navigate('/dashboard')
     } catch (err) {
@@ -107,23 +116,34 @@ export default function ComponentFormPage() {
             />
           </div>
 
-          {/* Row: Language, Privacy */}
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: 'Language *', key: 'language' as const, options: LANGUAGES },
-              { label: 'Privacy',    key: 'privacy'  as const, options: PRIVACY_OPTIONS },
-            ].map(({ label, key, options }) => (
-              <div key={key}>
-                <label className="mb-1.5 block text-xs font-medium text-gray-400">{label}</label>
-                <select
-                  value={form[key]}
-                  onChange={(e) => set(key, e.target.value as ComponentInput[typeof key])}
-                  className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:border-purple-500/50 focus:outline-none"
-                >
-                  {options.map((o) => <option key={o} value={o}>{o}</option>)}
-                </select>
-              </div>
-            ))}
+          {/* Privacy */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-gray-400">Privacy</label>
+            <select
+              value={form.privacy}
+              onChange={(e) => set('privacy', e.target.value as ComponentPrivacy)}
+              className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:border-purple-500/50 focus:outline-none"
+            >
+              {PRIVACY_OPTIONS.map((o) => (
+                <option key={o} value={o}>{o}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Dependencies */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-gray-400">
+              Dependencies{' '}
+              <span className="text-gray-600 font-normal">(optional — comma separated, e.g. react-icons, date-fns)</span>
+            </label>
+            <input
+              value={(form.dependencies ?? []).join(', ')}
+              onChange={(e) =>
+                set('dependencies', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))
+              }
+              placeholder="react-icons, date-fns@3.0.0, @heroui/react"
+              className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-purple-500/50 focus:outline-none"
+            />
           </div>
 
           {/* Code Editor (Sandpack split-view) */}
@@ -131,8 +151,11 @@ export default function ComponentFormPage() {
             <label className="mb-1.5 block text-xs font-medium text-gray-400">Code *</label>
             <ComponentEditor
               code={form.code}
+              cssCode={form.cssCode}
               template={form.template}
+              dependencies={form.dependencies}
               onChange={(code) => set('code', code)}
+              onCssChange={(css) => set('cssCode', css)}
               onTemplateChange={(t: ComponentTemplate) => set('template', t)}
             />
           </div>
