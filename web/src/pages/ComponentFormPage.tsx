@@ -18,7 +18,6 @@ const DEFAULT_FORM: ComponentInput = {
   language: 'tsx',
   template: 'react',
   privacy: 'private',
-  dependencies: [],
 }
 
 export default function ComponentFormPage() {
@@ -44,7 +43,6 @@ export default function ComponentFormPage() {
           language: c.language,
           template: c.template,
           privacy: c.privacy,
-          dependencies: c.dependencies ?? [],
         })
       )
       .catch(() => setError('Failed to load component'))
@@ -130,22 +128,6 @@ export default function ComponentFormPage() {
             </select>
           </div>
 
-          {/* Dependencies */}
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-gray-400">
-              Dependencies{' '}
-              <span className="text-gray-600 font-normal">(optional — comma separated, e.g. react-icons, date-fns)</span>
-            </label>
-            <input
-              value={(form.dependencies ?? []).join(', ')}
-              onChange={(e) =>
-                set('dependencies', e.target.value.split(',').map((s) => s.trim()).filter(Boolean))
-              }
-              placeholder="react-icons, date-fns@3.0.0, @heroui/react"
-              className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-purple-500/50 focus:outline-none"
-            />
-          </div>
-
           {/* Code Editor (Sandpack split-view) */}
           <div>
             <label className="mb-1.5 block text-xs font-medium text-gray-400">Code *</label>
@@ -153,7 +135,6 @@ export default function ComponentFormPage() {
               code={form.code}
               cssCode={form.cssCode}
               template={form.template}
-              dependencies={form.dependencies}
               onChange={(code) => set('code', code)}
               onCssChange={(css) => set('cssCode', css)}
               onTemplateChange={(t: ComponentTemplate) => set('template', t)}

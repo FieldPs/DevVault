@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   SandpackProvider,
@@ -9,7 +9,7 @@ import {
 import Navbar from '@/components/layout/Navbar'
 import { useComponentStore } from '@/store/componentStore'
 import type { Component } from '@/types/component'
-import { getSandpackTemplate, getSandpackFiles, parseDependencies } from '@/utils/sandpackUtils'
+import { getSandpackTemplate, getSandpackFiles, detectDependencies } from '@/utils/sandpackUtils'
 
 type Tab = 'preview' | 'code'
 
@@ -24,6 +24,12 @@ export default function ComponentViewPage() {
   const [activeTab, setActiveTab] = useState<Tab>('preview')
   const [copied, setCopied] = useState(false)
   const [showConsole, setShowConsole] = useState(false)
+
+  // Auto-detect dependencies from the component's import statements
+  const detectedDeps = useMemo(
+    () => (component ? detectDependencies(component.code) : {}),
+    [component]
+  )
 
   useEffect(() => {
     if (!id) return
@@ -129,7 +135,7 @@ export default function ComponentViewPage() {
                     template={getSandpackTemplate(component.template)}
                     theme="dark"
                     files={getSandpackFiles(component.template, component.code, component.cssCode)}
-                    customSetup={{ dependencies: parseDependencies(component.dependencies ?? []) }}
+                    customSetup={{ dependencies: detectedDeps }}
                   >
                     <SandpackPreview
                       style={{ minHeight: 600 }}
@@ -168,7 +174,7 @@ export default function ComponentViewPage() {
                       template={getSandpackTemplate(component.template)}
                       theme="dark"
                       files={getSandpackFiles(component.template, component.code, component.cssCode)}
-                      customSetup={{ dependencies: parseDependencies(component.dependencies ?? []) }}
+                      customSetup={{ dependencies: detectedDeps }}
                     >
                       <SandpackCodeEditor
                         readOnly
