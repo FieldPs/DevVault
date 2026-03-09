@@ -6,6 +6,7 @@ import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import DashboardPage from '@/pages/DashboardPage'
 import ComponentFormPage from '@/pages/ComponentFormPage'
+import ComponentViewPage from '@/pages/ComponentViewPage'
 
 export default function App() {
   // Rehydrate auth state from the server once on mount (replaces AuthProvider useEffect)
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/components/new" element={<ComponentFormPage />} />
         <Route path="/components/:id/edit" element={<ComponentFormPage />} />
+        <Route path="/components/:id" element={<ComponentViewPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

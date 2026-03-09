@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Trash2, Code2 } from 'lucide-react'
+import { Eye, Pencil, Trash2, Code2 } from 'lucide-react'
 import { useComponentStore } from '@/store/componentStore'
 import type { Component } from '@/types/component'
 
@@ -40,6 +40,13 @@ function ComponentRow({ component }: Props) {
       </div>
 
       <div className="flex items-center gap-2 shrink-0 ml-4">
+        <button
+          onClick={() => navigate(`/components/${component._id}`)}
+          className="flex items-center gap-1 rounded-lg border border-purple-500/20 bg-purple-500/10 px-2.5 py-1 text-xs font-medium text-purple-400 hover:bg-purple-500/20 transition-colors"
+        >
+          <Eye className="h-3 w-3" />
+          View
+        </button>
         <button
           onClick={() => navigate(`/components/${component._id}/edit`)}
           className="flex items-center gap-1 rounded-lg border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/20 transition-colors"
