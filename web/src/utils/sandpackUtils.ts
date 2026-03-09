@@ -27,10 +27,19 @@ const BUILTIN_PACKAGES = new Set([
   'path', 'fs', 'os', 'url', 'util', 'events', 'stream', 'http', 'https',
 ])
 
-// Peer / companion packages automatically added when a package is detected
+// Peer / companion packages automatically added when a package is detected.
 const COMPANION_DEPS: Record<string, Record<string, string>> = {
-  '@heroui/react':      { tailwindcss: 'latest', 'framer-motion': 'latest' },
-  '@nextui-org/react':  { tailwindcss: 'latest', 'framer-motion': 'latest' },
+  '@heroui/react':      { tailwindcss: '3.4.17', postcss: '^8.4.31', 'framer-motion': 'latest' },
+  '@nextui-org/react':  { tailwindcss: '3.4.17', postcss: '^8.4.31', 'framer-motion': 'latest' },
+  '@mui/material': {
+    '@emotion/react':   '^11.14.0',
+    '@emotion/styled':  '^11.14.0',
+  },
+  '@mui/icons-material': {
+    '@mui/material':    '^6',
+    '@emotion/react':   '^11.14.0',
+    '@emotion/styled':  '^11.14.0',
+  },
 }
 
 // ---------------------------------------------------------------------------
@@ -44,18 +53,43 @@ const HEROUI_INDEX_HTML = `<!DOCTYPE html>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sandbox</title>
-    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
     <div id="root"></div>
   </body>
 </html>`
 
-// Overrides the template entry so every HeroUI component is wrapped in
-// HeroUIProvider (required for CSS variables / theme context).
+// Only @tailwind base is needed: generates HeroUI CSS variables via heroui()
+// plugin. Utilities are handled by the Tailwind Play CDN (externalResources).
+const HEROUI_INDEX_CSS = `/* Base layer: generates HeroUI CSS variables via heroui() plugin */
+@tailwind base;`
+
+// heroui() plugin generates all bg-primary / text-primary-foreground classes.
+// The third content entry is required so Tailwind scans HeroUI's own theme
+// dist files and generates the CSS-variable-backed utility classes.
+const HEROUI_TAILWIND_CONFIG = `const { heroui } = require('@heroui/react');
+module.exports = {
+  content: [
+    './**/*.{js,jsx,ts,tsx}',
+    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
+  ],
+  darkMode: 'class',
+  plugins: [heroui()],
+};`
+
+// Just tailwindcss — no autoprefixer so we avoid fetching an extra package.
+const HEROUI_POSTCSS_CONFIG = `module.exports = {
+  plugins: {
+    tailwindcss: {},
+  },
+};`
+
+// Wraps user's App in HeroUIProvider (injects CSS variables) and imports
+// the PostCSS-processed stylesheet.
 const HEROUI_INDEX_JS = `import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HeroUIProvider } from '@heroui/react';
+import './index.css';
 import App from './App';
 
 createRoot(document.getElementById('root')).render(
@@ -68,12 +102,18 @@ createRoot(document.getElementById('root')).render(
 
 const COMPANION_FILES: Record<string, Record<string, SandpackFileEntry>> = {
   '@heroui/react': {
-    '/public/index.html': { code: HEROUI_INDEX_HTML, hidden: true },
-    '/index.js':           { code: HEROUI_INDEX_JS,   hidden: true },
+    '/public/index.html':  { code: HEROUI_INDEX_HTML,        hidden: true },
+    '/index.js':           { code: HEROUI_INDEX_JS,          hidden: true },
+    '/index.css':          { code: HEROUI_INDEX_CSS,         hidden: true },
+    '/tailwind.config.js': { code: HEROUI_TAILWIND_CONFIG,   hidden: true },
+    '/postcss.config.js':  { code: HEROUI_POSTCSS_CONFIG,    hidden: true },
   },
   '@nextui-org/react': {
-    '/public/index.html': { code: HEROUI_INDEX_HTML, hidden: true },
-    '/index.js':           { code: HEROUI_INDEX_JS,   hidden: true },
+    '/public/index.html':  { code: HEROUI_INDEX_HTML,        hidden: true },
+    '/index.js':           { code: HEROUI_INDEX_JS,          hidden: true },
+    '/index.css':          { code: HEROUI_INDEX_CSS,         hidden: true },
+    '/tailwind.config.js': { code: HEROUI_TAILWIND_CONFIG,   hidden: true },
+    '/postcss.config.js':  { code: HEROUI_POSTCSS_CONFIG,    hidden: true },
   },
 }
 
@@ -116,6 +156,19 @@ export function detectExtraFiles(deps: Record<string, string>): Record<string, S
     if (extra) Object.assign(files, extra)
   }
   return files
+}
+
+/**
+ * Returns external resources to inject into the Sandpack preview iframe.
+ * Always includes the Tailwind Play CDN for React templates so any
+ * Tailwind-based library (shadcn/ui, HeroUI, flowbite, daisyUI, etc.)
+ * renders correctly without requiring a PostCSS build pipeline.
+ */
+export function getExternalResources(template: ComponentTemplate): string[] {
+  if (template === 'react') {
+    return ['https://cdn.tailwindcss.com']
+  }
+  return []
 }
 
 export function parseDependencies(deps: string[]): Record<string, string> {
