@@ -54,7 +54,7 @@ export default function ComponentViewPage() {
   }
 
   return (
-    <div className="page-bg min-h-screen">
+    <div className="bg-[linear-gradient(135deg,#0a0a0f_0%,#0d1117_50%,#0a0f1a_100%)] min-h-screen relative overflow-clip">
       <Navbar />
 
       <div className="mx-auto max-w-5xl px-6 py-10">
@@ -68,14 +68,14 @@ export default function ComponentViewPage() {
 
         {/* Loading */}
         {loading && (
-          <div className="glass-card rounded-2xl p-10 text-center text-gray-400 text-sm">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-2xl p-10 text-center text-gray-400 text-sm">
             Loading component…
           </div>
         )}
 
         {/* Error */}
         {!loading && error && (
-          <div className="glass-card rounded-2xl p-10 text-center">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-2xl p-10 text-center">
             <p className="text-red-400 text-sm">{error}</p>
           </div>
         )}
@@ -84,9 +84,9 @@ export default function ComponentViewPage() {
         {!loading && !error && component && (
           <div className="flex flex-col gap-6">
             {/* Header */}
-            <div className="glass-card rounded-2xl px-6 py-5 flex items-start justify-between gap-4">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-2xl px-6 py-5 flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <h1 className="text-2xl font-bold gradient-text truncate">{component.title}</h1>
+                <h1 className="text-2xl font-bold bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent truncate">{component.title}</h1>
                 {component.description && (
                   <p className="mt-1 text-sm text-gray-400">{component.description}</p>
                 )}
@@ -104,7 +104,7 @@ export default function ComponentViewPage() {
               </div>
               <button
                 onClick={() => navigate(`/components/${component._id}/edit`)}
-                className="gradient-btn shrink-0 rounded-xl px-4 py-2 text-sm font-semibold text-white"
+                className="bg-gradient-to-br from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 active:translate-y-0 hover:-translate-y-px transition-all shadow-[0_0_24px_rgba(139,92,246,0.45),0_4px_16px_rgba(59,130,246,0.3)] shrink-0 rounded-xl px-4 py-2 text-sm font-semibold text-white"
               >
                 ✏️ Edit
               </button>
@@ -131,7 +131,7 @@ export default function ComponentViewPage() {
               </div>
 
               {/* Tab panels */}
-              <div className="glass-card rounded-b-2xl rounded-tr-2xl overflow-hidden">
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-b-2xl rounded-tr-2xl overflow-hidden">
                 {activeTab === 'preview' && (
                   <SandpackProvider
                     template={getSandpackTemplate(component.template)}

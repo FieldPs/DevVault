@@ -13,33 +13,21 @@ export default function Navbar() {
   const avatarInitial = (user?.username ?? user?.email ?? '?')[0].toUpperCase()
 
   return (
-    <header className="glass-nav sticky top-0 z-50">
+    <header className="bg-[#0a0a0f]/70 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.4)] sticky top-0 z-50">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
 
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-xl"
-            style={{
-              background: 'linear-gradient(135deg, rgba(59,130,246,0.3) 0%, rgba(139,92,246,0.3) 100%)',
-              border: '1px solid rgba(139,92,246,0.25)',
-            }}
-          >
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl text-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-purple-500/20">
             🗄️
           </div>
-          <span className="shimmer-text text-xl font-extrabold tracking-tight">DevVault</span>
+          <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent text-xl font-extrabold tracking-tight mt-0.5">DevVault</span>
         </div>
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-          <div
-            className="flex items-center gap-2.5 rounded-xl px-3 py-1.5"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            <div
-              className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white"
-              style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', boxShadow: '0 0 8px rgba(139,92,246,0.4)' }}
-            >
+          <div className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 bg-white/5 border border-white/10">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white bg-gradient-to-br from-blue-500 to-purple-500 shadow-sm shadow-purple-500/40">
               {avatarInitial}
             </div>
             <span className="hidden text-sm font-medium text-gray-300 sm:block">

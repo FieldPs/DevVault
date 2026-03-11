@@ -75,7 +75,7 @@ export default function ComponentFormPage() {
   }
 
   return (
-    <div className="page-bg min-h-screen">
+    <div className="bg-[linear-gradient(135deg,#0a0a0f_0%,#0d1117_50%,#0a0f1a_100%)] min-h-screen relative overflow-clip">
       <div className="mx-auto w-full max-w-[1600px] px-6 py-10">
         <div className="mb-6 flex items-center gap-3">
           <button
@@ -89,7 +89,7 @@ export default function ComponentFormPage() {
           </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-2xl p-6 flex flex-col gap-4">
 
           {/* Title */}
           <div>
@@ -162,7 +162,7 @@ export default function ComponentFormPage() {
             <button
               type="submit"
               disabled={loading}
-              className="gradient-btn rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              className="bg-gradient-to-br from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 active:translate-y-0 hover:-translate-y-px transition-all shadow-[0_0_24px_rgba(139,92,246,0.45),0_4px_16px_rgba(59,130,246,0.3)] rounded-xl px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
             >
               {loading ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Component'}
             </button>

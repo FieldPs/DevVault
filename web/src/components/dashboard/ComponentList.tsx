@@ -68,7 +68,7 @@ function ComponentRow({ component }: Props) {
 
 export default function ComponentList({ components }: { components: Component[] }) {
   return (
-    <div className="glass-card rounded-2xl p-4 flex flex-col gap-2">
+    <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-2xl p-4 flex flex-col gap-2">
       {components.map((c) => (
         <ComponentRow key={c._id} component={c} />
       ))}
