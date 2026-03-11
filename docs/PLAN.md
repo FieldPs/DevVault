@@ -14,7 +14,7 @@
 | 2 | Component CRUD (Backend + Basic UI) | ✅ done |
 | 3 | Component View (Tab UI) + Split-View Editor ⭐ | ✅ done |
 | 4 | Recursive Folder System | ✅ done |
-| 5 | Visual Gallery (Live Sandpack Rendering) | 🔲 todo |
+| 5 | Visual Gallery (Live Sandpack Rendering) | ✅ done |
 | 6 | Privacy Levels (Private/Friends/Public) | 🔲 todo |
 | 7 | Social — Follow & Friends | 🔲 todo |
 | 8 | Flutter Mobile App | 🔲 todo |
@@ -129,22 +129,22 @@
 ---
 
 ## Chunk 5 — Visual Gallery (Live Sandpack Rendering)
-**Status**: 🔲 todo  
+**Status**: ✅ done  
 **Depends on**: Chunk 4  
 **Commit**: `feat: visual gallery with live sandpack rendering`
 
 ### Tasks
-- [ ] **Web**: Dashboard → Grid card layout
-- [ ] **Web**: แต่ละ Card ใช้ `<SandpackPreview>` (read-only, no editor visible) เพื่อ render component จริงแบบ live ในแต่ละ card — ไม่ใช่ static thumbnail
-- [ ] **Web**: Lazy-load Sandpack instances ด้วย Intersection Observer (หรือเทียบเท่า) เพื่อป้องกัน performance issues เมื่อ gallery มีหลาย card
-- [ ] **Web**: Card แสดง: title, language badge, privacy badge, edit/delete action
-- [ ] **Web**: Search bar กรองตาม title หรือ language
-- [ ] **Web**: Filter by folder (ผ่าน sidebar)
-- [ ] Verify: Gallery แสดง live Sandpack render ของแต่ละ component, search ทำงานได้
+- [x] **Web**: Dashboard → Grid card layout
+- [x] **Web**: แต่ละ Card ใช้ `<SandpackPreview>` (read-only, no editor visible) เพื่อ render component จริงแบบ live ในแต่ละ card — ไม่ใช่ static thumbnail
+- [x] **Web**: Lazy-load Sandpack instances ด้วย Intersection Observer (หรือเทียบเท่า) เพื่อป้องกัน performance issues เมื่อ gallery มีหลาย card
+- [x] **Web**: Card แสดง: title, language badge, privacy badge, edit/delete action
+- [x] **Web**: Search bar กรองตาม title หรือ language
+- [x] **Web**: Filter by folder (ผ่าน sidebar)
+- [x] Verify: Gallery แสดง live Sandpack render ของแต่ละ component, search ทำงานได้
 
 ### Current State
-- Dashboard currently ships as a list/table view with stats and CRUD navigation.
-- Live gallery rendering is still pending because it needs careful lazy-loading and Sandpack startup budgeting for multiple previews.
+- Dashboard now uses a live visual gallery grid with per-card Sandpack previews.
+- Sandpack previews are lazy-initialized when cards enter viewport to reduce initial dashboard cost.
 
 ---
 
