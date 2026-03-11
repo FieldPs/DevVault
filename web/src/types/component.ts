@@ -26,4 +26,5 @@ export interface ComponentInput {
   template: ComponentTemplate
   privacy: ComponentPrivacy
   dependencies?: string[]
+  folderId?: string | null
 }

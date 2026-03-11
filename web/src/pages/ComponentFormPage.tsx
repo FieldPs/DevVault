@@ -40,6 +40,7 @@ const DEFAULT_FORM: ComponentInput = {
   language: 'tsx',
   template: 'react',
   privacy: 'private',
+  folderId: null,
 }
 
 export default function ComponentFormPage() {
@@ -65,6 +66,7 @@ export default function ComponentFormPage() {
           language: c.language,
           template: c.template,
           privacy: c.privacy,
+          folderId: c.folderId ?? null,
         })
       )
       .catch(() => setError('Failed to load component'))

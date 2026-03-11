@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import api from '@/lib/api'
 import type { Component, ComponentInput } from '@/types/component'
+import { parseError } from '@/utils/errorUtils'
 
 interface ComponentState {
   components: Component[]
@@ -12,6 +13,7 @@ interface ComponentState {
   updateComponent: (id: string, input: ComponentInput) => Promise<void>
   deleteComponent: (id: string) => Promise<void>
   getComponent: (id: string) => Promise<Component>
+  moveComponent: (id: string, folderId: string | null) => Promise<void>
 }
 
 export const useComponentStore = create<ComponentState>((set, get) => ({
@@ -24,8 +26,8 @@ export const useComponentStore = create<ComponentState>((set, get) => ({
     try {
       const res = await api.get('/components')
       set({ components: res.data.components, loading: false })
-    } catch {
-      set({ error: 'Failed to load components', loading: false })
+    } catch (err) {
+      set({ error: parseError(err, 'Failed to load components'), loading: false })
     }
   },
 
@@ -50,5 +52,28 @@ export const useComponentStore = create<ComponentState>((set, get) => ({
   getComponent: async (id) => {
     const res = await api.get(`/components/${id}`)
     return res.data.component as Component
+  },
+
+  moveComponent: async (id, folderId) => {
+    const component = get().components.find((item) => item._id === id)
+    if (!component) {
+      throw new Error('Component not found')
+    }
+
+    const payload: ComponentInput = {
+      title: component.title,
+      description: component.description ?? '',
+      code: component.code,
+      cssCode: component.cssCode ?? '',
+      language: component.language,
+      template: component.template,
+      privacy: component.privacy,
+      dependencies: component.dependencies ?? [],
+      folderId,
+    }
+
+    const res = await api.put(`/components/${id}`, payload)
+    const updated: Component = res.data.component
+    set({ components: get().components.map((item) => (item._id === id ? updated : item)) })
   },
 }))

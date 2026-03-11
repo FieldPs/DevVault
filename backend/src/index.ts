@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 import { connectDB } from './config/database'
 import authRoutes from './routes/auth'
 import componentRoutes from './routes/components'
+import folderRoutes from './routes/folders'
 
 dotenv.config()
 
@@ -24,6 +25,7 @@ app.use(cookieParser())
 // Routes
 app.use('/auth', authRoutes)
 app.use('/components', componentRoutes)
+app.use('/folders', folderRoutes)
 
 // Health check
 app.get('/health', (_req, res) => {
