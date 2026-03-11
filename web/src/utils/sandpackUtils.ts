@@ -37,6 +37,8 @@ const HTML_WRAPPER = `<!DOCTYPE html>
         height: 100%;
       }
     </style>
+    <!-- Tailwind v4 Browser script -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
@@ -48,6 +50,43 @@ const HTML_WRAPPER = `<!DOCTYPE html>
           document.getElementById('preview-container').innerHTML = html;
         });
         
+      window.addEventListener('message', (event) => {
+        if (event.data?.type === 'bg-change') {
+          const bg = event.data.bg;
+          let color = '#212121';
+          if (bg === 'light') color = '#f5f5f5';
+          if (bg === 'transparent') color = 'transparent';
+          document.documentElement.style.setProperty('--bg-color', color);
+        }
+      });
+    </script>
+  </body>
+</html>`;
+
+const REACT_HTML_WRAPPER = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>React App</title>
+    <!-- Tailwind v4 Browser script -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+      :root {
+        --bg-color: #212121;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color) !important;
+        transition: background-color 0.3s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script>
       window.addEventListener('message', (event) => {
         if (event.data?.type === 'bg-change') {
           const bg = event.data.bg;
@@ -73,9 +112,30 @@ export function getSandpackFiles(
       '/styles.css': { code: cssCode ?? '', active: false }
     }
   }
+  
+  // Combine tailwind import with user CSS
+  const userCss = cssCode ?? ''
+  const CSS_RESET = `
+/* Centering Layout */
+body, html, #root {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+`;
+
+  // Provide exactly the custom CSS + reset, NO @import "tailwindcss" needed for Browser script
+  const finalCss = `${CSS_RESET}\n${userCss}`
+
+  // Use standard React (CRA) paths: /App.js and /styles.css
   return { 
+    '/public/index.html': { code: REACT_HTML_WRAPPER, hidden: true },
     '/App.js': code,
-    '/index.css': { code: cssCode ?? '', hidden: true }
+    '/styles.css': { code: finalCss, hidden: true }
   }
 }
 
@@ -92,15 +152,9 @@ const BUILTIN_PACKAGES = new Set([
 const COMPANION_DEPS: Record<string, Record<string, string>> = {
   '@heroui/react': { 
     'framer-motion': 'latest', 
-    'tailwindcss': '^3.4.0', 
-    'postcss': '^8.4.0', 
-    'autoprefixer': '^10.4.0' 
   },
   '@nextui-org/react': { 
     'framer-motion': 'latest', 
-    'tailwindcss': '^3.4.0', 
-    'postcss': '^8.4.0', 
-    'autoprefixer': '^10.4.0' 
   },
   '@mui/material': {
     '@emotion/react': '^11.14.0',
@@ -117,66 +171,57 @@ const COMPANION_DEPS: Record<string, Record<string, string>> = {
 // Extra Sandpack files (hidden)
 // ---------------------------------------------------------------------------
 
-const HEROUI_INDEX_HTML = (pkgName: string) => {
-  const isHeroUI = pkgName.includes('heroui')
-  const pluginName = isHeroUI ? 'heroui' : 'nextui'
-  
-  return `<!DOCTYPE html>
-<html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sandbox</title>
-    <!-- Tailwind v3 CDN script that supports plugins -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/${pkgName}@latest/dist/theme.js"></script>
-    <script>
-      // Load plugin from the exposed global object
-      const uiPlugin = window.${pluginName} ? window.${pluginName}() : (() => {});
-      
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {},
-        },
-        plugins: [uiPlugin]
-      }
-    </script>
-  </head>
-  <body class="dark bg-background text-foreground text-zinc-800 dark:text-zinc-200">
-    <div id="root"></div>
-  </body>
-</html>`
-}
+function getIndexJsFor(providerName: 'HeroUIProvider' | 'NextUIProvider' | null, pkgName?: string) {
+  if (!providerName || !pkgName) {
+    return `import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './styles.css';
+import App from './App';
 
-function getIndexJsxFor(providerName: 'HeroUIProvider' | 'NextUIProvider', pkgName: string) {
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+}`;
+  }
+
   return `import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ${providerName} } from '${pkgName}';
-import './index.css';
+import './styles.css';
 import App from './App';
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <${providerName}>
-      <App />
-    </${providerName}>
-  </StrictMode>
-);`
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <${providerName}>
+        <App />
+      </${providerName}>
+    </StrictMode>
+  );
+}`;
 }
 
-const UI_FILES = (providerName: 'HeroUIProvider' | 'NextUIProvider', pkgName: string) => ({
-  '/public/index.html': { code: HEROUI_INDEX_HTML(pkgName), hidden: true },
-  '/index.js':          { code: getIndexJsxFor(providerName, pkgName), hidden: true },
-})
-
+// Map from a detected package to extra files needed to boot
 const COMPANION_FILES: Record<string, Record<string, SandpackFileEntry>> = {
-  '@heroui/react': UI_FILES('HeroUIProvider', '@heroui/react'),
-  '@nextui-org/react': UI_FILES('NextUIProvider', '@nextui-org/react'),
+  '@heroui/react': {
+    '/index.js': { code: getIndexJsFor('HeroUIProvider', '@heroui/react'), hidden: true },
+  },
+  '@nextui-org/react': {
+    '/index.js': { code: getIndexJsFor('NextUIProvider', '@nextui-org/react'), hidden: true },
+  },
 }
 
 export function detectDependencies(code: string): Record<string, string> {
-  const deps: Record<string, string> = {}
+  const deps: Record<string, string> = {
+    'lucide-react': 'latest',
+    // HeroUI internals expect 'tailwindcss' to exist in node_modules
+    'tailwindcss': 'latest',
+  }
   const importRegex = /import\s+(?:[\s\S]*?\s+from\s+)?['"]([^'"]+)['"]/g
   let match: RegExpExecArray | null
 
@@ -204,18 +249,24 @@ export function detectDependencies(code: string): Record<string, string> {
   return deps
 }
 
-export function detectExtraFiles(deps: Record<string, string>): Record<string, SandpackFileEntry> {
-  const files: Record<string, SandpackFileEntry> = {}
+export function detectExtraFiles(deps: Record<string, string>, template: ComponentTemplate): Record<string, SandpackFileEntry> {
+  if (template !== 'react') return {}
+
+  const files: Record<string, SandpackFileEntry> = {
+    '/index.js': { code: getIndexJsFor(null), hidden: true },
+  }
+
+  // Override index.js with provider if needed
   for (const pkgName of Object.keys(deps)) {
     const extra = COMPANION_FILES[pkgName]
     if (extra) Object.assign(files, extra)
   }
+  
   return files
 }
 
-export function getExternalResources(template: ComponentTemplate): string[] {
-  if (template !== 'react') return []
-  // Instead of relying on Sandpack postcss bundler, inject Tailwind CDN script
+export function getExternalResources(): string[] {
+  // Vite handles everything through npm packages, so no external CDNs needed
   return []
 }
 

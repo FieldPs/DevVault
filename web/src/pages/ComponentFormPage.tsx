@@ -10,10 +10,32 @@ const PRIVACY_OPTIONS: ComponentPrivacy[] = ['private', 'friends', 'public']
 
 const getLang = (t: ComponentTemplate) => (t === 'react' ? 'tsx' : 'html')
 
+const DEFAULT_REACT_CODE = `import { Button } from "@heroui/react";
+
+export default function App() {
+  return (
+    <div className="flex flex-col gap-4 items-center p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-2xl">
+      <h1 className="text-2xl font-bold text-white tracking-tight">HeroUI Sandbox</h1>
+      <p className="text-gray-400 text-sm mb-4">Edit this component to see live changes.</p>
+      <Button color="primary" variant="shadow">
+        Interactive Button
+      </Button>
+    </div>
+  );
+}`;
+
+const DEFAULT_HTML_CODE = `<div class="flex flex-col gap-4 items-center p-8 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-2xl">
+  <h1 class="text-2xl font-bold text-white tracking-tight">HTML Sandbox</h1>
+  <p class="text-gray-400 text-sm mb-4">Edit this component to see live changes.</p>
+  <button class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow-lg transition-all">
+    Interactive Button
+  </button>
+</div>`;
+
 const DEFAULT_FORM: ComponentInput = {
   title: '',
   description: '',
-  code: '',
+  code: DEFAULT_REACT_CODE,
   cssCode: '',
   language: 'tsx',
   template: 'react',
@@ -139,7 +161,7 @@ export default function ComponentFormPage() {
               onCssChange={(css) => set('cssCode', css)}
               onTemplateChange={(t: ComponentTemplate) => {
                 set('template', t)
-                set('code', '')
+                set('code', t === 'react' ? DEFAULT_REACT_CODE : DEFAULT_HTML_CODE)
                 set('cssCode', '')
               }}
             />

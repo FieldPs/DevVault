@@ -30,7 +30,7 @@ export default function ComponentViewPage() {
     () => (component ? detectDependencies(component.code) : {}),
     [component]
   )
-  const extraFiles = useMemo(() => detectExtraFiles(detectedDeps), [detectedDeps])
+  const extraFiles = useMemo(() => detectExtraFiles(detectedDeps, component?.template || 'react'), [detectedDeps, component])
 
   useEffect(() => {
     if (!id) return
@@ -138,7 +138,7 @@ export default function ComponentViewPage() {
                     theme="dark"
                     files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                     customSetup={{ dependencies: detectedDeps }}
-                    options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template) }}
+                    options={{ bundlerTimeOut: 60000, externalResources: getExternalResources() }}
                   >
                     <SandpackPreview
                       style={{ minHeight: 600 }}
@@ -178,7 +178,7 @@ export default function ComponentViewPage() {
                       theme="dark"
                       files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                       customSetup={{ dependencies: detectedDeps }}
-                      options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template) }}
+                      options={{ bundlerTimeOut: 60000, externalResources: getExternalResources() }}
                     >
                       <SandpackCodeEditor
                         readOnly

@@ -145,11 +145,11 @@ export default function ComponentEditor({
 
   // Auto-detect dependencies from import statements
   const detectedDeps = useMemo(() => detectDependencies(code), [code])
-  const extraFiles   = useMemo(() => detectExtraFiles(detectedDeps), [detectedDeps])
+  const extraFiles   = useMemo(() => detectExtraFiles(detectedDeps, template), [detectedDeps, template])
 
   // Include template in key so switching template always remounts the provider
   const sandpackKey = useMemo(
-    () => `${template}:${Object.keys(detectedDeps).sort().join(',')}`,
+    () => `${template}:${JSON.stringify(detectedDeps)}`,
     [template, detectedDeps]
   )
 
@@ -214,7 +214,7 @@ export default function ComponentEditor({
             recompileDelay: realtimeMode ? 300 : 9_999_999,
             autorun: realtimeMode,
             bundlerTimeOut: 60000,
-            externalResources: getExternalResources(template),
+            externalResources: getExternalResources(),
           }}
         >
           <FileSyncer template={template} onChange={onChange} onCssChange={onCssChange} />
