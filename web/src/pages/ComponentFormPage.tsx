@@ -157,6 +157,7 @@ export default function ComponentFormPage() {
               code={form.code}
               cssCode={form.cssCode}
               template={form.template}
+              language={form.language}
               onChange={(code) => set('code', code)}
               onCssChange={(css) => set('cssCode', css)}
               onTemplateChange={(t: ComponentTemplate) => {
