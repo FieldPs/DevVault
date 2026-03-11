@@ -14,7 +14,7 @@ interface ComponentState {
   deleteComponent: (id: string) => Promise<void>
   getComponent: (id: string) => Promise<Component>
   getPublicComponent: (id: string) => Promise<PublicComponent>
-  fetchExploreComponents: () => Promise<PublicComponent[]>
+  fetchExploreComponents: (includeMine?: boolean) => Promise<PublicComponent[]>
   moveComponent: (id: string, folderId: string | null) => Promise<void>
 }
 
@@ -61,8 +61,8 @@ export const useComponentStore = create<ComponentState>((set, get) => ({
     return res.data.component as PublicComponent
   },
 
-  fetchExploreComponents: async () => {
-    const res = await api.get('/components/explore')
+  fetchExploreComponents: async (includeMine = true) => {
+    const res = await api.get('/components/explore', { params: { includeMine } })
     return (res.data.components ?? []) as PublicComponent[]
   },
 

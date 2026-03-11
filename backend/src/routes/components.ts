@@ -57,10 +57,14 @@ router.get('/', verifyToken, async (req: AuthRequest, res: Response): Promise<vo
 // GET /components/explore — list public components from other users
 router.get('/explore', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const components = await Component.find({
-      privacy: 'public',
-      ownerId: { $ne: req.userId },
-    })
+    const includeMine = req.query.includeMine === 'true'
+    const query: Record<string, unknown> = { privacy: 'public' }
+
+    if (!includeMine && req.userId && Types.ObjectId.isValid(req.userId)) {
+      query.ownerId = { $ne: new Types.ObjectId(req.userId) }
+    }
+
+    const components = await Component.find(query)
       .populate('ownerId', 'username')
       .sort({ createdAt: -1 })
 

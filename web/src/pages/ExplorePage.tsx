@@ -15,11 +15,12 @@ export default function ExplorePage() {
   const [components, setComponents] = useState<PublicComponent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [includeMine, setIncludeMine] = useState(true)
 
   useEffect(() => {
     let active = true
 
-    fetchExploreComponents()
+    fetchExploreComponents(includeMine)
       .then((items) => {
         if (!active) return
         setComponents(items)
@@ -36,7 +37,7 @@ export default function ExplorePage() {
     return () => {
       active = false
     }
-  }, [fetchExploreComponents])
+  }, [fetchExploreComponents, includeMine])
 
   return (
     <div className="relative min-h-screen overflow-clip bg-gradient-to-br from-[#0a0a0f] via-[#0d1117] to-[#0a0f1a]">
@@ -45,7 +46,16 @@ export default function ExplorePage() {
       <main className="relative z-10 mx-auto max-w-6xl px-6 py-10">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-white">Explore Public Components</h2>
-          <p className="mt-1 text-sm text-gray-500">Discover public snippets from other users.</p>
+          <p className="mt-1 text-sm text-gray-500">Discover public snippets. Toggle whether to include your own public items.</p>
+          <label className="mt-3 inline-flex items-center gap-2 text-sm text-gray-300">
+            <input
+              type="checkbox"
+              checked={includeMine}
+              onChange={(e) => setIncludeMine(e.target.checked)}
+              className="h-4 w-4 rounded border-white/20 bg-white/5"
+            />
+            Include my public components
+          </label>
         </div>
 
         {loading && (
@@ -62,7 +72,7 @@ export default function ExplorePage() {
 
         {!loading && !error && components.length === 0 && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center text-sm text-gray-400">
-            No public components available yet.
+            No public components found for this filter.
           </div>
         )}
 
