@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Eye, Pencil, Trash2, Code2 } from 'lucide-react'
 import { useComponentStore } from '@/store/componentStore'
+import { useFolderStore } from '@/store/folderStore'
 import type { Component } from '@/types/component'
 
 const PRIVACY_BADGE: Record<string, string> = {
@@ -14,7 +15,8 @@ interface Props {
 }
 
 function ComponentRow({ component }: Props) {
-  const { deleteComponent } = useComponentStore()
+  const { deleteComponent, moveComponent } = useComponentStore()
+  const { flatFolders } = useFolderStore()
   const navigate = useNavigate()
 
   const handleDelete = async () => {
@@ -40,6 +42,18 @@ function ComponentRow({ component }: Props) {
       </div>
 
       <div className="flex items-center gap-2 shrink-0 ml-4">
+        <select
+          value={component.folderId ?? ''}
+          onChange={(e) => moveComponent(component._id, e.target.value || null)}
+          className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-gray-300 focus:outline-none"
+        >
+          <option value="">No folder</option>
+          {flatFolders.map((folder) => (
+            <option key={folder._id} value={folder._id}>
+              {folder.name}
+            </option>
+          ))}
+        </select>
         <button
           onClick={() => navigate(`/components/${component._id}`)}
           className="flex items-center gap-1 rounded-lg border border-purple-500/20 bg-purple-500/10 px-2.5 py-1 text-xs font-medium text-purple-400 hover:bg-purple-500/20 transition-colors"

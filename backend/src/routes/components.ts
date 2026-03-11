@@ -1,17 +1,31 @@
 import { Router, Response } from 'express'
+import { Types } from 'mongoose'
 import { Component } from '../models/Component'
+import { Folder } from '../models/Folder'
 import { verifyToken, AuthRequest } from '../middleware/auth'
 
 const router = Router()
 
 // POST /components — create
 router.post('/', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, code, cssCode, language, template, description, privacy, dependencies } = req.body
+  const { title, code, cssCode, language, template, description, privacy, dependencies, folderId } = req.body
   if (!title || !code || !language || !template) {
     res.status(400).json({ message: 'title, code, language, and template are required' })
     return
   }
+  if (folderId && (!Types.ObjectId.isValid(folderId))) {
+    res.status(400).json({ message: 'Invalid folder id' })
+    return
+  }
   try {
+    if (folderId) {
+      const folder = await Folder.findOne({ _id: folderId, ownerId: req.userId })
+      if (!folder) {
+        res.status(404).json({ message: 'Folder not found' })
+        return
+      }
+    }
+
     const component = await Component.create({
       title,
       code,
@@ -21,6 +35,7 @@ router.post('/', verifyToken, async (req: AuthRequest, res: Response): Promise<v
       description: description ?? '',
       privacy: privacy ?? 'private',
       dependencies: Array.isArray(dependencies) ? dependencies : [],
+      folderId: folderId ?? null,
       ownerId: req.userId,
     })
     res.status(201).json({ component })
@@ -59,9 +74,13 @@ router.get('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise
 
 // PUT /components/:id — update
 router.put('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, code, cssCode, language, template, description, privacy, dependencies } = req.body
+  const { title, code, cssCode, language, template, description, privacy, dependencies, folderId } = req.body
   if (!title || !code || !language || !template) {
     res.status(400).json({ message: 'title, code, language, and template are required' })
+    return
+  }
+  if (folderId && (!Types.ObjectId.isValid(folderId))) {
+    res.status(400).json({ message: 'Invalid folder id' })
     return
   }
   try {
@@ -74,6 +93,13 @@ router.put('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise
       res.status(403).json({ message: 'Forbidden' })
       return
     }
+    if (folderId) {
+      const folder = await Folder.findOne({ _id: folderId, ownerId: req.userId })
+      if (!folder) {
+        res.status(404).json({ message: 'Folder not found' })
+        return
+      }
+    }
     const updated = await Component.findByIdAndUpdate(
       req.params.id,
       {
@@ -85,6 +111,7 @@ router.put('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise
         description,
         privacy,
         dependencies: Array.isArray(dependencies) ? dependencies : [],
+        folderId: folderId ?? null,
       },
       { new: true }
     )

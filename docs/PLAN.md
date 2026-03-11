@@ -13,7 +13,7 @@
 | 1 | Auth System (JWT) | ✅ done |
 | 2 | Component CRUD (Backend + Basic UI) | ✅ done |
 | 3 | Component View (Tab UI) + Split-View Editor ⭐ | ✅ done |
-| 4 | Recursive Folder System | 🔲 todo |
+| 4 | Recursive Folder System | ✅ done |
 | 5 | Visual Gallery (Live Sandpack Rendering) | 🔲 todo |
 | 6 | Privacy Levels (Private/Friends/Public) | 🔲 todo |
 | 7 | Social — Follow & Friends | 🔲 todo |
@@ -113,18 +113,18 @@
 ---
 
 ## Chunk 4 — Recursive Folder System
-**Status**: 🔲 todo  
+**Status**: ✅ done  
 **Depends on**: Chunk 3  
 **Commit**: `feat: recursive folder system with sidebar navigation`
 
 ### Tasks
-- [ ] **Backend**: Folder model (name, parentId, ownerId)
-- [ ] **Backend**: `POST /folders`, `GET /folders` (tree), `PUT /folders/:id`, `DELETE /folders/:id`
-- [ ] **Web**: Sidebar component — recursive folder tree
-- [ ] **Web**: สร้าง/rename/ลบ folder (context menu หรือ inline edit)
-- [ ] **Web**: ย้าย component เข้า folder
-- [ ] **Web**: Breadcrumb navigation
-- [ ] Verify: สร้าง `Project A > UI > Buttons` → ย้าย component เข้าได้
+- [x] **Backend**: Folder model (name, parentId, ownerId)
+- [x] **Backend**: `POST /folders`, `GET /folders` (tree), `PUT /folders/:id`, `DELETE /folders/:id`
+- [x] **Web**: Sidebar component — recursive folder tree
+- [x] **Web**: สร้าง/rename/ลบ folder (context menu หรือ inline edit)
+- [x] **Web**: ย้าย component เข้า folder
+- [x] **Web**: Breadcrumb navigation
+- [x] Verify: สร้าง `Project A > UI > Buttons` → ย้าย component เข้าได้
 
 ---
 
