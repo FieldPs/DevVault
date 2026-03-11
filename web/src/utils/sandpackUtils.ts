@@ -37,8 +37,6 @@ const HTML_WRAPPER = `<!DOCTYPE html>
         height: 100%;
       }
     </style>
-    <!-- Tailwind v4 Browser script -->
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
@@ -69,8 +67,6 @@ const REACT_HTML_WRAPPER = `<!DOCTYPE html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>React App</title>
-    <!-- Tailwind v4 Browser script -->
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <style>
       :root {
         --bg-color: #212121;
@@ -266,8 +262,10 @@ export function detectExtraFiles(deps: Record<string, string>, template: Compone
 }
 
 export function getExternalResources(): string[] {
-  // Vite handles everything through npm packages, so no external CDNs needed
-  return []
+  // Sandpack reliably injects external resources into the preview head for both
+  // static and react templates. Use the official Tailwind CDN entrypoint here
+  // instead of relying on react template HTML overrides.
+  return ['https://cdn.tailwindcss.com']
 }
 
 export function parseDependencies(deps: string[]): Record<string, string> {
