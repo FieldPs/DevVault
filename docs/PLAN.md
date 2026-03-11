@@ -15,7 +15,7 @@
 | 3 | Component View (Tab UI) + Split-View Editor ⭐ | ✅ done |
 | 4 | Recursive Folder System | ✅ done |
 | 5 | Visual Gallery (Live Sandpack Rendering) | ✅ done |
-| 6 | Privacy Levels (Private/Friends/Public) | 🔲 todo |
+| 6 | Privacy Levels (Private/Friends/Public) | ✅ done |
 | 7 | Social — Follow & Friends | 🔲 todo |
 | 8 | Flutter Mobile App | 🔲 todo |
 | 9 | Polish & Extras | 🔲 todo |
@@ -149,17 +149,17 @@
 ---
 
 ## Chunk 6 — Privacy Levels (RBAC)
-**Status**: 🔲 todo  
+**Status**: ✅ done  
 **Depends on**: Chunk 5  
 **Commit**: `feat: privacy levels - private/friends/public`
 
 ### Tasks
-- [ ] **Backend**: `privacy` field ใน Component (`private` | `friends` | `public`)
-- [ ] **Backend**: Access control middleware ตรวจสิทธิ์การเข้าถึง
-- [ ] **Web**: Privacy selector ใน editor (dropdown)
-- [ ] **Web**: Public component page `/c/:id` — เข้าได้โดยไม่ต้อง login
-- [ ] **Web**: หน้า Explore แสดง public components ของ user อื่น
-- [ ] Verify: Private → คนอื่นเข้าไม่ได้, Public → เข้าได้ + copy ได้
+- [x] **Backend**: `privacy` field ใน Component (`private` | `friends` | `public`)
+- [x] **Backend**: Access control middleware ตรวจสิทธิ์การเข้าถึง
+- [x] **Web**: Privacy selector ใน editor (dropdown)
+- [x] **Web**: Public component page `/c/:id` — เข้าได้โดยไม่ต้อง login
+- [x] **Web**: หน้า Explore แสดง public components ของ user อื่น
+- [x] Verify: Private → คนอื่นเข้าไม่ได้, Public → เข้าได้ + copy ได้
 
 ---
 

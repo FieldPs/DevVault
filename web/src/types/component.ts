@@ -28,3 +28,12 @@ export interface ComponentInput {
   dependencies?: string[]
   folderId?: string | null
 }
+
+export interface PublicOwner {
+  _id: string
+  username: string
+}
+
+export interface PublicComponent extends Omit<Component, 'ownerId'> {
+  ownerId: string | PublicOwner
+}

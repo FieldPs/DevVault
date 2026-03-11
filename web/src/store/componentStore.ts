@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import api from '@/lib/api'
-import type { Component, ComponentInput } from '@/types/component'
+import type { Component, ComponentInput, PublicComponent } from '@/types/component'
 import { parseError } from '@/utils/errorUtils'
 
 interface ComponentState {
@@ -13,6 +13,8 @@ interface ComponentState {
   updateComponent: (id: string, input: ComponentInput) => Promise<void>
   deleteComponent: (id: string) => Promise<void>
   getComponent: (id: string) => Promise<Component>
+  getPublicComponent: (id: string) => Promise<PublicComponent>
+  fetchExploreComponents: () => Promise<PublicComponent[]>
   moveComponent: (id: string, folderId: string | null) => Promise<void>
 }
 
@@ -52,6 +54,16 @@ export const useComponentStore = create<ComponentState>((set, get) => ({
   getComponent: async (id) => {
     const res = await api.get(`/components/${id}`)
     return res.data.component as Component
+  },
+
+  getPublicComponent: async (id) => {
+    const res = await api.get(`/components/public/${id}`)
+    return res.data.component as PublicComponent
+  },
+
+  fetchExploreComponents: async () => {
+    const res = await api.get('/components/explore')
+    return (res.data.components ?? []) as PublicComponent[]
   },
 
   moveComponent: async (id, folderId) => {
