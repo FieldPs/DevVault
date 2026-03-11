@@ -8,6 +8,7 @@ import {
   useSandpack,
 } from '@codesandbox/sandpack-react'
 import type { PublicComponent } from '@/types/component'
+import { useAuthStore } from '@/store/authStore'
 import { useComponentStore } from '@/store/componentStore'
 import {
   detectDependencies,
@@ -49,6 +50,7 @@ function getOwnerName(component: PublicComponent): string {
 export default function PublicComponentPage() {
   const { id } = useParams<{ id: string }>()
   const { getPublicComponent } = useComponentStore()
+  const { user, loading: authLoading } = useAuthStore()
 
   const [component, setComponent] = useState<PublicComponent | null>(null)
   const [loading, setLoading] = useState(true)
@@ -103,12 +105,27 @@ export default function PublicComponentPage() {
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#0a0a0f_0%,#0d1117_50%,#0a0f1a_100%)] px-6 py-8">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between">
-        <Link to="/login" className="text-sm text-gray-400 transition-colors hover:text-white">
-          ← Login
-        </Link>
-        <Link to="/register" className="text-sm text-blue-400 transition-colors hover:text-blue-300">
-          Create account
-        </Link>
+        {authLoading ? (
+          <span className="text-sm text-gray-500">Loading session…</span>
+        ) : user ? (
+          <>
+            <Link to="/dashboard" className="text-sm text-gray-400 transition-colors hover:text-white">
+              ← Dashboard
+            </Link>
+            <Link to="/explore" className="text-sm text-blue-400 transition-colors hover:text-blue-300">
+              Explore
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="text-sm text-gray-400 transition-colors hover:text-white">
+              ← Login
+            </Link>
+            <Link to="/register" className="text-sm text-blue-400 transition-colors hover:text-blue-300">
+              Create account
+            </Link>
+          </>
+        )}
       </div>
 
       <div className="mx-auto mt-6 w-full max-w-5xl">
