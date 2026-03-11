@@ -16,7 +16,7 @@ export default function DashboardPage() {
   }, [fetchComponents])
 
   return (
-    <div className="page-bg min-h-screen">
+    <div className="relative min-h-screen overflow-clip bg-gradient-to-br from-[#0a0a0f] via-[#0d1117] to-[#0a0f1a]">
 
       {/* Ambient background */}
       <div className="pointer-events-none select-none" aria-hidden="true">
@@ -46,10 +46,18 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={() => navigate('/components/new')}
-            className="gradient-btn flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white"
+            className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-px hover:shadow-[0_0_24px_rgba(139,92,246,0.45),0_4px_16px_rgba(59,130,246,0.3)] active:translate-y-0"
           >
-            <Plus className="h-4 w-4" />
-            New Component
+            {/* Darker gradient overlay on hover — hidden below content */}
+            <span
+              className="absolute inset-0 bg-gradient-to-br from-blue-700 to-violet-800 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+              aria-hidden="true"
+            />
+            {/* Content always on top */}
+            <span className="relative z-10 flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              New Component
+            </span>
           </button>
         </div>
 

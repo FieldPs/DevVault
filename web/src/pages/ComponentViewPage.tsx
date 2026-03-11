@@ -34,11 +34,12 @@ export default function ComponentViewPage() {
 
   useEffect(() => {
     if (!id) return
-    setLoading(true)
+    let active = true
     getComponent(id)
-      .then((c) => setComponent(c))
-      .catch(() => setError('Component not found or failed to load.'))
-      .finally(() => setLoading(false))
+      .then((c) => { if (active) setComponent(c) })
+      .catch(() => { if (active) setError('Component not found or failed to load.') })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
   }, [id, getComponent])
 
   const handleCopy = async () => {
@@ -137,7 +138,7 @@ export default function ComponentViewPage() {
                     theme="dark"
                     files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                     customSetup={{ dependencies: detectedDeps }}
-                    options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template, detectedDeps) }}
+                    options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template) }}
                   >
                     <SandpackPreview
                       style={{ minHeight: 600 }}
@@ -177,7 +178,7 @@ export default function ComponentViewPage() {
                       theme="dark"
                       files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
                       customSetup={{ dependencies: detectedDeps }}
-                      options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template, detectedDeps) }}
+                      options={{ bundlerTimeOut: 60000, externalResources: getExternalResources(component.template) }}
                     >
                       <SandpackCodeEditor
                         readOnly

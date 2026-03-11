@@ -57,7 +57,7 @@ function FileSyncer({
   // HTML+CSS mode: only propagate when either file string actually changed
   useEffect(() => {
     if (template !== 'html') return
-    const html = sandpack.files['/index.html']?.code ?? ''
+    const html = sandpack.files['/App.html']?.code ?? ''
     const css  = sandpack.files['/styles.css']?.code  ?? ''
     let changed = false
     if (html !== lastCodeRef.current) { lastCodeRef.current = html; changed = true; onChange(html) }
@@ -71,20 +71,63 @@ function FileSyncer({
 /** Run button + preview — must live inside SandpackProvider */
 function PreviewPanel({ realtimeMode }: { realtimeMode: boolean }) {
   const { sandpack } = useSandpack()
+  const [bgType, setBgType] = useState<'dark' | 'light' | 'transparent'>('dark')
+
+  // Send message to iframe when background changes
+  useEffect(() => {
+    // We send it to all iframes to be safe, Sandpack sets class sp-preview-iframe
+    const frames = document.querySelectorAll('.sp-preview-iframe')
+    frames.forEach(f => {
+      const iframe = f as HTMLIFrameElement
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage({ type: 'bg-change', bg: bgType }, '*')
+      }
+    })
+  }, [bgType, sandpack.status]) // Resend on status change (e.g. reload)
 
   return (
-    <div style={{ position: 'relative', flex: 1, minHeight: 700 }}>
-      {!realtimeMode && (
-        <button
-          type="button"
-          onClick={() => sandpack.runSandpack()}
-          style={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}
-          className="rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors"
-        >
-          ▶ Run
-        </button>
-      )}
-      <SandpackPreview style={{ minHeight: 700 }} showNavigator={false} />
+    <div className="flex flex-col bg-[#151515] border-r border-white/5" style={{ flex: 1, minHeight: 700 }}>
+      {/* Background toggle bar */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-white/5 bg-[#1e1e1e]">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400">Background:</span>
+          <div className="flex items-center rounded-lg overflow-hidden border border-white/10 bg-black/20">
+            <button 
+              onClick={() => setBgType('dark')}
+              className={`w-6 h-6 flex items-center justify-center transition-colors ${bgType === 'dark' ? 'bg-white/20' : 'hover:bg-white/10'}`}
+              title="Dark"
+            >
+              <div className="w-3 h-3 rounded-full bg-[#212121] border border-white/20" />
+            </button>
+            <button 
+              onClick={() => setBgType('light')}
+              className={`w-6 h-6 flex items-center justify-center transition-colors ${bgType === 'light' ? 'bg-white/20' : 'hover:bg-white/10'}`}
+              title="Light"
+            >
+              <div className="w-3 h-3 rounded-full bg-[#f5f5f5] border border-black/20" />
+            </button>
+            <button 
+              onClick={() => setBgType('transparent')}
+              className={`w-6 h-6 flex items-center justify-center transition-colors ${bgType === 'transparent' ? 'bg-white/20' : 'hover:bg-white/10'}`}
+              title="Transparent"
+            >
+              <div className="w-3 h-3 rounded-full bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMElEQVQ4T2N89uzZfwY8QFJSEp80A+OIAMOX1BIA0Q+o4Kj4YNTBqIOY4IFn0wMAAG7gMh520H9/AAAAAElFTkSuQmCC')] border border-white/10" />
+            </button>
+          </div>
+        </div>
+        {!realtimeMode && (
+          <button
+            type="button"
+            onClick={() => sandpack.runSandpack()}
+            className="rounded border border-green-500/40 bg-green-500/10 px-2.5 py-1 text-[11px] font-medium text-green-400 hover:bg-green-500/20 transition-colors"
+          >
+            ▶ Run
+          </button>
+        )}
+      </div>
+      <div style={{ position: 'relative', flex: 1 }}>
+        <SandpackPreview style={{ minHeight: '100%', height: '100%' }} showNavigator={false} />
+      </div>
     </div>
   )
 }
@@ -113,7 +156,7 @@ export default function ComponentEditor({
   const sandpackTemplate = getSandpackTemplate(template)
   const files = useMemo(
     () => ({ ...getSandpackFiles(template, code, cssCode), ...extraFiles }),
-    [template, code, cssCode, extraFiles] // eslint-disable-line react-hooks/exhaustive-deps
+    [template, code, cssCode, extraFiles]
   )
 
   return (
@@ -168,22 +211,22 @@ export default function ComponentEditor({
           customSetup={{ dependencies: detectedDeps }}
           options={{
             recompileMode: realtimeMode ? 'immediate' : 'delayed',
-            recompileDelay: realtimeMode ? 0 : 9_999_999,
+            recompileDelay: realtimeMode ? 300 : 9_999_999,
             autorun: realtimeMode,
             bundlerTimeOut: 60000,
-            externalResources: getExternalResources(template, detectedDeps),
+            externalResources: getExternalResources(template),
           }}
         >
           <FileSyncer template={template} onChange={onChange} onCssChange={onCssChange} />
 
-          <SandpackLayout style={{ minHeight: 700 }}>
+          <SandpackLayout style={{ minHeight: 700, border: 'none' }}>
+            <PreviewPanel realtimeMode={realtimeMode} />
             <SandpackCodeEditor
               style={{ minHeight: 700 }}
               showTabs
               showLineNumbers
               showInlineErrors
             />
-            <PreviewPanel realtimeMode={realtimeMode} />
           </SandpackLayout>
 
           {/* Collapsible console */}
