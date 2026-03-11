@@ -54,6 +54,46 @@ router.get('/', verifyToken, async (req: AuthRequest, res: Response): Promise<vo
   }
 })
 
+// GET /components/explore — list public components from other users
+router.get('/explore', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const components = await Component.find({
+      privacy: 'public',
+      ownerId: { $ne: req.userId },
+    })
+      .populate('ownerId', 'username')
+      .sort({ createdAt: -1 })
+
+    res.json({ components })
+  } catch {
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+// GET /components/public/:id — public component detail (no auth)
+router.get('/public/:id', async (req, res: Response): Promise<void> => {
+  if (!Types.ObjectId.isValid(req.params.id)) {
+    res.status(400).json({ message: 'Invalid component id' })
+    return
+  }
+
+  try {
+    const component = await Component.findOne({
+      _id: req.params.id,
+      privacy: 'public',
+    }).populate('ownerId', 'username')
+
+    if (!component) {
+      res.status(404).json({ message: 'Public component not found' })
+      return
+    }
+
+    res.json({ component })
+  } catch {
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
 // GET /components/:id — single component
 router.get('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
