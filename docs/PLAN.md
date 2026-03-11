@@ -11,7 +11,7 @@
 |-------|---------|--------|
 | 0 | Project Scaffolding & Infra | ✅ done |
 | 1 | Auth System (JWT) | ✅ done |
-| 2 | Component CRUD (Backend + Basic UI) | 🔲 todo |
+| 2 | Component CRUD (Backend + Basic UI) | ✅ done |
 | 3 | Component View (Tab UI) + Split-View Editor ⭐ | ✅ done |
 | 4 | Recursive Folder System | 🔲 todo |
 | 5 | Visual Gallery (Live Sandpack Rendering) | 🔲 todo |
@@ -27,13 +27,13 @@
 **Commit**: `feat: scaffold monorepo with web + backend + mongodb connection`
 
 ### Tasks
-- [ ] Initialize monorepo structure (`web/`, `backend/`, `mobile/`)
-- [ ] **Backend**: Express + TypeScript + `dotenv` + `cors` + `helmet` + Mongoose
-- [ ] **Backend**: MongoDB connection + health-check `GET /health`
-- [ ] **Backend**: `.env.example`
-- [ ] **Web**: Vite + React 19 + TypeScript + Tailwind CSS + HeroUI + React Router v7 + Zustand
-- [ ] **Web**: `.env.example`
-- [ ] Verify: `npm run dev` ทั้ง web และ backend ไม่ error
+- [x] Initialize monorepo structure (`web/`, `backend/`, `mobile/`)
+- [x] **Backend**: Express + TypeScript + `dotenv` + `cors` + `helmet` + Mongoose
+- [x] **Backend**: MongoDB connection + health-check `GET /health`
+- [x] **Backend**: `.env.example`
+- [x] **Web**: Vite + React 19 + TypeScript + Tailwind CSS + HeroUI + React Router v7 + Zustand
+- [x] **Web**: `.env.example`
+- [x] Verify: `npm run build` ผ่านทั้ง web และ backend
 
 ---
 
@@ -43,15 +43,15 @@
 **Commit**: `feat: auth system with JWT HttpOnly cookie`
 
 ### Tasks
-- [ ] **Backend**: User model (email, username, passwordHash)
-- [ ] **Backend**: `POST /auth/register` — bcrypt hash password
-- [ ] **Backend**: `POST /auth/login` — return JWT via HttpOnly Cookie
-- [ ] **Backend**: `POST /auth/logout` — clear cookie
-- [ ] **Backend**: `GET /auth/me` — verifyToken middleware + return user
-- [ ] **Web**: หน้า `/login` และ `/register` (HeroUI form)
-- [ ] **Web**: `AuthContext` หรือ Zustand store เก็บ user state
-- [ ] **Web**: Protected route — redirect `/login` ถ้าไม่ได้ login
-- [ ] Verify: Register → Login → เห็น user info → Logout สำเร็จ
+- [x] **Backend**: User model (email, username, passwordHash)
+- [x] **Backend**: `POST /auth/register` — bcrypt hash password
+- [x] **Backend**: `POST /auth/login` — return JWT via HttpOnly Cookie
+- [x] **Backend**: `POST /auth/logout` — clear cookie
+- [x] **Backend**: `GET /auth/me` — verifyToken middleware + return user
+- [x] **Web**: หน้า `/login` และ `/register` (HeroUI form)
+- [x] **Web**: Zustand auth store เก็บ user state
+- [x] **Web**: Protected route — redirect `/login` ถ้าไม่ได้ login
+- [x] Verify: Register → Login → เห็น user info → Logout สำเร็จ
 
 ---
 
@@ -61,14 +61,15 @@
 **Commit**: `feat: component CRUD with basic list UI`
 
 ### Tasks
-- [x] **Backend**: Component model (`title`, `description`, `code`, `language`, `template` (react/vanilla/html), `folderId`, `ownerId`, `privacy`)
+- [x] **Backend**: Component model (`title`, `description`, `code`, `cssCode`, `language`, `template` (react/vanilla/html), `dependencies`, `folderId`, `ownerId`, `privacy`)
 - [x] **Backend**: `POST /components` — create
 - [x] **Backend**: `GET /components` — list ของตัวเอง
 - [x] **Backend**: `GET /components/:id` — single component
 - [x] **Backend**: `PUT /components/:id` — update
 - [x] **Backend**: `DELETE /components/:id` — delete
-- [x] **Web**: หน้า `/dashboard` แสดง component list แบบ simple list/table (full gallery rendering comes in Chunk 5)
-- [x] **Web**: สร้าง/แก้ไข component ด้วย `<textarea>` ธรรมดา (ยังไม่ใช้ Sandpack)
+- [x] **Backend**: persist `cssCode` และ `dependencies` บน create/update route
+- [x] **Web**: หน้า `/dashboard` แสดง component list แบบ list/table (live gallery remains in Chunk 5)
+- [x] **Web**: create/edit flow เชื่อมกับ component store และ backend CRUD ครบ
 - [x] Verify: CRUD component ครบทุก operation ผ่าน UI ได้
 
 ---
@@ -81,25 +82,33 @@
 ### Tasks
 
 #### Component View Page — `/components/:id`
-- [ ] **Web**: Install `@codesandbox/sandpack-react`
-- [ ] **Web**: หน้า `/components/:id` — Component View page
+- [x] **Web**: Install `@codesandbox/sandpack-react`
+- [x] **Web**: หน้า `/components/:id` — Component View page
   - Tab "Preview": `<SandpackProvider>` + `<SandpackPreview>` — fully **interactive** (กดได้ ใช้งานได้จริง)
   - Tab "Code": `<SandpackCodeEditor readOnly />` — syntax highlight สีสวยงาม, ไม่ edit ได้
-- [ ] **Web**: ปุ่ม "Edit" บน view page → navigate ไป `/components/:id/edit`
-- [ ] **Web**: ปุ่ม "Copy Code" บน Code tab → copy code ไป clipboard
+- [x] **Web**: ปุ่ม "Edit" บน view page → navigate ไป `/components/:id/edit`
+- [x] **Web**: ปุ่ม "Copy Code" บน Code tab → copy code ไป clipboard
+- [x] **Web**: preview status + console ช่วย debug Sandpack startup/runtime error
 
 #### Split-View Editor — `/components/new` + `/components/:id/edit`
-- [ ] **Web**: Component `<ComponentEditor>` — split-view layout
+- [x] **Web**: Component `<ComponentEditor>` — split-view layout
   - ซ้าย: `<SandpackCodeEditor>` — แก้ไขได้, syntax highlight
   - ขวา: `<SandpackPreview>` — live preview, interactive
-- [ ] **Web**: Toggle Real-time / Manual Run (ปุ่ม "Run")
-- [ ] **Web**: เลือก template: React, Vanilla JS, HTML+CSS
-- [ ] **Web**: Replace textarea ใน `/components/new` ด้วย `<ComponentEditor>`
-- [ ] **Web**: Replace textarea ใน `/components/:id/edit` ด้วย `<ComponentEditor>`
-- [ ] **Web**: เพิ่ม route `/components/:id` ใน App.tsx (ProtectedRoute)
+- [x] **Web**: Toggle Real-time / Manual Run (ปุ่ม "Run")
+- [x] **Web**: เลือก template: React, HTML+CSS
+- [x] **Web**: Replace textarea ใน `/components/new` ด้วย `<ComponentEditor>`
+- [x] **Web**: Replace textarea ใน `/components/:id/edit` ด้วย `<ComponentEditor>`
+- [x] **Web**: เพิ่ม route `/components/:id` ใน App.tsx (ProtectedRoute)
+- [x] **Web**: Sandpack React mode ใช้ไฟล์ตาม language จริง (`App.tsx` / `App.jsx` / `App.js`) และจำกัด visible tabs ให้ตรงกับไฟล์หลัก
+- [x] **Web**: HeroUI preview ใช้ generated provider entry + runtime Tailwind config สำหรับ sandbox
 
-- [ ] Verify: View page → Preview tab แสดง interactive component (กดได้), Code tab แสดง highlight
-- [ ] Verify: Edit page → พิมพ์ React code → เห็น preview ทันที, Save → reload → code ยังอยู่
+- [x] Verify: View page → Preview tab แสดง interactive component (กดได้), Code tab แสดง highlight
+- [x] Verify: Edit page → พิมพ์ React/HTML code → เห็น preview ได้, Save → reload → code ยังอยู่
+
+### Implementation Notes
+- React sandbox currently targets `react` and `html` flows in the web UI; `vanilla` remains in the shared model enum but is not yet exposed by the editor.
+- Sandpack setup is centralized in `web/src/utils/sandpackUtils.ts` and should stay the single source of truth for files, dependencies, runtime helpers, and visible editor tabs.
+- Tailwind styling inside Sandpack uses CDN/browser runtime plus a small runtime config shim for HeroUI semantic colors.
 
 ---
 
@@ -132,6 +141,10 @@
 - [ ] **Web**: Search bar กรองตาม title หรือ language
 - [ ] **Web**: Filter by folder (ผ่าน sidebar)
 - [ ] Verify: Gallery แสดง live Sandpack render ของแต่ละ component, search ทำงานได้
+
+### Current State
+- Dashboard currently ships as a list/table view with stats and CRUD navigation.
+- Live gallery rendering is still pending because it needs careful lazy-loading and Sandpack startup budgeting for multiple previews.
 
 ---
 

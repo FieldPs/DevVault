@@ -25,11 +25,11 @@ audience: AI Agents (Amelia, Winston, Quinn, etc.) and human developers
 
 ## 1. Project Overview
 
-**DevVault** is a personal **React Component library vault** — a place where developers save, organise, and rediscover their own reusable React components and code snippets.
+**DevVault** is a personal **React component vault** where developers save, organise, preview, and revisit reusable UI components and snippets.
 
-The core value proposition is the **Visual Gallery**: the list/dashboard view renders every stored component live inside a sandboxed iframe (powered by Sandpack), so a developer can scroll through their library and immediately see what each component looks like — no need to open files or remember names. When they spot the one they want, they can open it, copy the code, or fork it into a new project.
+The current implemented core experience is the **split-view editor + component view flow**: users create or edit a component in a Sandpack-powered editor, then open `/components/:id` to inspect the same component through interactive Preview and read-only Code tabs. The dashboard is currently a fast list-based management view; the fully live Sandpack gallery is still planned work, not a shipped feature yet.
 
-Secondary features include a split-view editor (code left, live preview right), a recursive folder system for organising by project or category, privacy levels (private / friends-only / public) for optional sharing, and a read-only Flutter mobile companion for browsing the gallery on the go.
+Secondary features include privacy levels (private / friends-only / public), planned recursive folders, and a future read-only Flutter mobile companion for browsing saved components on the go.
 
 ### Tech Stack
 
@@ -56,14 +56,16 @@ final2/
 ├── web/
 │   └── src/
 │       ├── components/
-│       │   ├── auth/                # AuthPageBackground, BrandHeader, ErrorAlert, FormInput, SubmitButton
-│       │   └── layout/ProtectedRoute.tsx
+│       │   ├── auth/                # Login/register form UI pieces
+│       │   ├── dashboard/           # List, stats, empty state
+│       │   ├── editor/ComponentEditor.tsx
+│       │   └── layout/              # Navbar, ProtectedRoute
 │       ├── context/AuthContext.tsx  # Legacy — superseded by Zustand store. Do not use.
 │       ├── lib/api.ts               # Axios instance: baseURL=VITE_API_URL, withCredentials:true
-│       ├── pages/                   # LoginPage, RegisterPage, DashboardPage
-│       ├── store/authStore.ts       # Zustand auth store (login, register, logout, fetchMe)
-│       ├── types/auth.ts            # User, AuthContextType interfaces
-│       └── utils/errorUtils.ts     # Axios error parsing utilities
+│       ├── pages/                   # DashboardPage, ComponentFormPage, ComponentViewPage, auth pages
+│       ├── store/                   # authStore, componentStore
+│       ├── types/                   # auth.ts, component.ts
+│       └── utils/                   # errorUtils.ts, sandpackUtils.ts
 ├── docs/
 │   ├── PLAN.md                      # Feature-based implementation tracker
 │   ├── PRD.md                       # Product requirements
@@ -75,40 +77,40 @@ final2/
 └── web/vercel.json                  # Vercel SPA rewrite rules
 ```
 
-### Core UX Concept — Three Views
+### Core UX Concept — Current Views
 
-> **Every agent must understand all three views and when to use each.**
+> **Every agent must understand which flows are shipped now and which are still planned.**
 
-The app has **three distinct views** for components, each with a different Sandpack usage:
+The app currently has **two shipped component views** and one planned gallery view:
 
 ---
 
-#### A. Dashboard Gallery (Chunk 5)
+#### A. Dashboard List (Current)
 
-The main dashboard is a scrollable grid of **live-rendered component cards**. Each card uses `<SandpackPreview>` (read-only, no editor) so users see actual running output — buttons, calendars, forms — directly in the grid.
+The main dashboard is currently a **list-based management screen**. It shows component metadata, stats, and navigation actions, but it does **not** yet render a live Sandpack preview per card.
 
 ```
 ┌──────────────────────────────────────────────────────┐
 │  Dashboard — My Components                  [+ New]  │
-├──────────────┬──────────────┬──────────────┬─────────┤
-│ ┌──────────┐ │ ┌──────────┐ │ ┌──────────┐ │   ...   │
-│ │ RENDERED │ │ │ RENDERED │ │ │ RENDERED │ │         │
-│ │ PREVIEW  │ │ │ PREVIEW  │ │ │ PREVIEW  │ │         │
-│ │ (iframe) │ │ │ (iframe) │ │ │ (iframe) │ │         │
-│ └──────────┘ │ └──────────┘ │ └──────────┘ │         │
-│ GlassButton  │ CalendarPicker│ PricingCard │         │
-│ React · 🔒  │ React · 👥   │ React · 🌐  │         │
-└──────────────┴──────────────┴──────────────┴─────────┘
-```
-
+┌──────────────────────────────────────────────────────┐
+│  Dashboard — My Components                  [+ New]  │
+├──────────────────────────────────────────────────────┤
+│  GlassButton        react · private          [Edit]  │
+│  CalendarPicker     react · friends          [Edit]  │
+│  PricingCard        html  · public           [Edit]  │
+└──────────────────────────────────────────────────────┘
 Rules:
 - Use `<SandpackPreview>` per card — no screenshots.
-- Lazy-load with Intersection Observer to avoid performance issues.
-- Clicking a card navigates to the **Component View page** (`/components/:id`).
+- Use lightweight list rendering only; do not add many live iframes to the dashboard until Chunk 5 is implemented.
+- Clicking a row/card navigates to the **Component View page** (`/components/:id`).
+- Search/filter/gallery behavior described in the PRD is still future work.
 
+#### B. Dashboard Gallery (Planned Chunk 5)
+
+The future dashboard target is a scrollable grid of **live-rendered component cards**. Each card will use `<SandpackPreview>` with lazy-loading so users can visually browse components without opening each one.
 ---
 
-#### B. Component View Page — `/components/:id` (Chunk 3)
+#### C. Component View Page — `/components/:id` (Shipped)
 
 When viewing a single component, the page shows a **tab UI** with two tabs:
 
@@ -147,11 +149,10 @@ Rules:
 - **Preview tab**: Full interactive `<SandpackProvider>` + `<SandpackPreview>` — the rendered component is **clickable and fully functional** (not a screenshot, not read-only).
 - **Code tab**: Read-only syntax-highlighted view using `<SandpackCodeEditor readOnly />` — beautiful coloured syntax, no editing capability.
 - This page also has an **"Edit"** button that navigates to the split-view editor.
+- The preview area should keep Sandpack startup state visible; use console/setup progress when debugging slow or failed loads.
 - **Do NOT** use `dangerouslySetInnerHTML` for the code tab. Use Sandpack's code editor in read-only mode.
 
----
-
-#### C. Create / Edit Page — `/components/new` and `/components/:id/edit` (Chunk 3)
+#### D. Create / Edit Page — `/components/new` and `/components/:id/edit` (Shipped)
 
 Full editing experience with a **side-by-side split view**:
 
@@ -174,12 +175,12 @@ Full editing experience with a **side-by-side split view**:
 Rules:
 - Left pane: `<SandpackCodeEditor>` — editable, full syntax highlight.
 - Right pane: `<SandpackPreview>` — live interactive preview.
-- Template selector (React / Vanilla / HTML+CSS) at the top.
-- Save button stores `code` to the backend.
+- Template selector currently exposes **React** and **HTML + CSS** in the web UI.
+- Save persists `code`, `cssCode`, `language`, `template`, `privacy`, and `dependencies` to the backend.
+- Sandpack file generation must come from `web/src/utils/sandpackUtils.ts`; do not duplicate wrapper logic inside pages.
 
----
 
-**The `code` field is always the single source of truth** — it drives all three views: gallery card, view tab, and editor.
+**The `code` field is the primary source of truth**, and for HTML/react editing flows the persisted `cssCode`, `language`, and detected `dependencies` are also part of the saved preview contract.
 
 ---
 
@@ -221,7 +222,7 @@ git pull origin develop
 git checkout -b feat/description
 ```
 
-Use a short kebab-case summary of the feature (e.g., `feat/snippet-crud`, `feat/folder-system`, `feat/privacy-levels`).
+Use a short kebab-case summary of the feature (e.g., `feat/component-gallery`, `feat/folder-system`, `feat/privacy-levels`).
 
 **Step 4 — Implement**
 
@@ -239,7 +240,7 @@ Update the Chunk status in `docs/PLAN.md`:
 
 ```bash
 git add .
-git commit -m "feat: snippet CRUD with basic list UI"
+git commit -m "feat: component CRUD with basic list UI"
 ```
 
 See [Section 3](#3-git-branch-convention) for commit message rules.
@@ -279,7 +280,7 @@ flowchart TD
 |---|---|---|
 | `main` | Production — auto-deploys via CI/CD | **Never commit directly.** Merges from `develop` only. |
 | `develop` | Integration branch | Merge feature branches here. Keep it stable. |
-| `feat/description` | Feature branches | Branch from `develop`. Example: `feat/snippet-crud`, `feat/folder-system` |
+| `feat/description` | Feature branches | Branch from `develop`. Example: `feat/component-gallery`, `feat/folder-system` |
 | `fix/description` | Bug fixes | Branch from `develop`. Example: `fix/auth-cookie-expiry` |
 | `ci/description` | CI/CD changes only | Example: `ci/add-lint-step` |
 
@@ -297,12 +298,12 @@ gitGraph
     commit id: "jwt cookie"
     checkout develop
     merge feat/auth-system id: "✅ auth"
-    branch feat/snippet-crud
-    checkout feat/snippet-crud
-    commit id: "snippet model"
+    branch feat/component-crud
+    checkout feat/component-crud
+    commit id: "component model"
     commit id: "CRUD routes"
     checkout develop
-    merge feat/snippet-crud id: "✅ snippet-crud"
+    merge feat/component-crud id: "✅ component-crud"
     checkout main
     merge develop id: "🚀 release"
 ```
@@ -326,11 +327,11 @@ Every commit message follows this format:
 **Examples:**
 
 ```bash
-feat: snippet CRUD with basic list UI
+feat: component CRUD with basic list UI
 fix: auth cookie not cleared on logout
 refactor: extract error handler to middleware
 ci: add frontend lint step to ci.yml
-docs: add snippet API to GUIDELINES
+docs: add component API notes to GUIDELINES
 ```
 
 > Keep the description short, imperative, and lowercase. Do not end with a period.
@@ -345,7 +346,7 @@ Follow strict single-responsibility: one concern per file.
 
 | File type | Location | Rule |
 |---|---|---|
-| Route handlers | `backend/src/routes/` | One file per resource (`snippets.ts`, `folders.ts`) |
+| Route handlers | `backend/src/routes/` | One file per resource (`components.ts`, `folders.ts`) |
 | Mongoose models | `backend/src/models/` | One file per model |
 | Middleware | `backend/src/middleware/` | One concern per file (`auth.ts`, `validate.ts`) |
 | App bootstrap | `backend/src/index.ts` | Register routes here with `app.use()` |
@@ -357,8 +358,8 @@ Follow strict single-responsibility: one concern per file.
 
 ```typescript
 // src/index.ts
-import snippetRoutes from './routes/snippets';
-app.use('/snippets', snippetRoutes);
+import componentRoutes from './routes/components';
+app.use('/components', componentRoutes);
 ```
 
 ### Models
@@ -458,10 +459,10 @@ Always use the pre-configured Axios instance at `lib/api.ts`. Never use raw `fet
 ```typescript
 // ✅ Correct
 import api from '@/lib/api';
-const res = await api.get('/snippets');
+const res = await api.get('/components');
 
 // ❌ Wrong
-const res = await fetch('https://devvault-backend.onrender.com/snippets');
+const res = await fetch('https://devvault-backend.onrender.com/components');
 ```
 
 ### Types
@@ -561,19 +562,19 @@ user.password = req.body.password;
 
 #### Ownership Verification
 
-For every resource endpoint (snippets, folders, etc.), verify the requester owns the resource **before** returning or mutating it. Never trust a resource ID from the client alone.
+For every resource endpoint (components, folders, etc.), verify the requester owns the resource **before** returning or mutating it. Never trust a resource ID from the client alone.
 
 ```typescript
 // ✅ Correct
-const snippet = await Snippet.findById(req.params.id);
-if (!snippet) return res.status(404).json({ message: 'Not found' });
-if (snippet.ownerId.toString() !== req.userId) {
+const component = await Component.findById(req.params.id);
+if (!component) return res.status(404).json({ message: 'Not found' });
+if (component.ownerId.toString() !== req.userId) {
   return res.status(403).json({ message: 'Forbidden' });
 }
 
 // ❌ Wrong — skips ownership check
-const snippet = await Snippet.findById(req.params.id);
-res.json(snippet);
+const component = await Component.findById(req.params.id);
+res.json(component);
 ```
 
 #### CORS
@@ -621,6 +622,15 @@ if (!title || !code || !language) {
 // ❌ Wrong — arbitrary code execution in the host DOM
 <div dangerouslySetInnerHTML={{ __html: userCode }} />
 ```
+
+#### Sandpack Integration Rules
+
+- Centralize all Sandpack setup in `web/src/utils/sandpackUtils.ts`.
+- React previews must generate the real app file path from the saved language (`/App.tsx`, `/App.jsx`, or `/App.js`) and import it explicitly from the generated `/index.js`.
+- Use Sandpack `visibleFiles` and `activeFile` options to control which tabs appear in the editor. Do not create fake placeholder files just to hide tabs.
+- React sandbox startup must carry detected dependencies plus any companion packages needed by UI libraries, such as `framer-motion` for HeroUI.
+- Persist `cssCode` and `dependencies` in backend component routes so the view page can reproduce the same sandbox that the editor used.
+- Tailwind styling in Sandpack currently relies on CDN/browser runtime plus the local runtime shim in `sandpackUtils.ts`; do not assume the full Vite Tailwind plugin pipeline exists inside the sandbox.
 
 #### Sensitive Data
 
