@@ -339,9 +339,11 @@ const BUILTIN_PACKAGES = new Set([
 const COMPANION_DEPS: Record<string, Record<string, string>> = {
   '@heroui/react': { 
     'framer-motion': 'latest', 
+    'tailwindcss': 'latest',
   },
   '@nextui-org/react': { 
     'framer-motion': 'latest', 
+    'tailwindcss': 'latest',
   },
   '@mui/material': {
     '@emotion/react': '^11.14.0',
@@ -400,11 +402,7 @@ if (rootElement) {
 }
 
 export function detectDependencies(code: string): Record<string, string> {
-  const deps: Record<string, string> = {
-    'lucide-react': 'latest',
-    // HeroUI internals expect 'tailwindcss' to exist in node_modules
-    'tailwindcss': 'latest',
-  }
+  const deps: Record<string, string> = {}
   const importRegex = /import\s+(?:[\s\S]*?\s+from\s+)?['"]([^'"]+)['"]/g
   let match: RegExpExecArray | null
 

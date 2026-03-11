@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import Navbar from '@/components/layout/Navbar'
@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { components, loading, fetchComponents } = useComponentStore()
   const { selectedFolderId, fetchFolders, loading: foldersLoading, getSelectedFolderIds } = useFolderStore()
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
     fetchComponents()
@@ -22,9 +23,19 @@ export default function DashboardPage() {
 
   const selectedFolderIds = getSelectedFolderIds()
 
-  const filteredComponents = selectedFolderId
+  const folderFilteredComponents = selectedFolderId
     ? components.filter((component) => component.folderId && selectedFolderIds.includes(component.folderId))
     : components
+
+  const filteredComponents = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase()
+    if (!query) return folderFilteredComponents
+
+    return folderFilteredComponents.filter((component) =>
+      component.title.toLowerCase().includes(query) ||
+      component.language.toLowerCase().includes(query)
+    )
+  }, [folderFilteredComponents, searchTerm])
 
   return (
     <div className="relative min-h-screen overflow-clip bg-gradient-to-br from-[#0a0a0f] via-[#0d1117] to-[#0a0f1a]">
@@ -84,7 +95,21 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {!loading && !foldersLoading && filteredComponents.length === 0 && <ComponentEmptyState />}
+            <div className="mb-4">
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by title or language..."
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-gray-200 placeholder:text-gray-500 focus:border-violet-400/40 focus:outline-none"
+              />
+            </div>
+
+            {!loading && !foldersLoading && filteredComponents.length === 0 && !searchTerm.trim() && <ComponentEmptyState />}
+            {!loading && !foldersLoading && filteredComponents.length === 0 && searchTerm.trim() && (
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-10 text-center text-sm text-gray-400">
+                No components matched &quot;{searchTerm.trim()}&quot;.
+              </div>
+            )}
             {!loading && !foldersLoading && filteredComponents.length > 0 && <ComponentList components={filteredComponents} />}
           </div>
         </div>
