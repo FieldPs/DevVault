@@ -2,7 +2,6 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { AuthPageBackground } from '@/components/auth/AuthPageBackground'
 import { BrandHeader } from '@/components/auth/BrandHeader'
 import { FormInput } from '@/components/auth/FormInput'
 import { ErrorAlert } from '@/components/auth/ErrorAlert'
@@ -33,52 +32,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="page-bg flex items-center justify-center min-h-screen px-4 py-10">
-
-      {/* ── Animated background orbs ── */}
-      <AuthPageBackground>
-        {/* Purple orb — top right */}
-        <div
-          className="blob-2 absolute rounded-full"
-          style={{
-            top: '-5%',
-            right: '-4%',
-            width: '500px',
-            height: '500px',
-            background: 'radial-gradient(circle at center, rgba(139,92,246,0.42) 0%, rgba(109,40,217,0.18) 45%, transparent 70%)',
-            filter: 'blur(65px)',
-          }}
-        />
-        {/* Blue orb — bottom left */}
-        <div
-          className="blob-1 absolute rounded-full"
-          style={{
-            bottom: '0%',
-            left: '-5%',
-            width: '460px',
-            height: '460px',
-            background: 'radial-gradient(circle at center, rgba(59,130,246,0.4) 0%, rgba(37,99,235,0.18) 40%, transparent 70%)',
-            filter: 'blur(60px)',
-          }}
-        />
-        {/* Teal accent — center */}
-        <div
-          className="blob-3 absolute rounded-full"
-          style={{
-            top: '45%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '300px',
-            height: '300px',
-            background: 'radial-gradient(circle at center, rgba(20,184,166,0.15) 0%, transparent 70%)',
-            filter: 'blur(55px)',
-          }}
-        />
-      </AuthPageBackground>
+    <div className="bg-[linear-gradient(135deg,#0a0a0f_0%,#0d1117_50%,#0a0f1a_100%)] flex items-center justify-center min-h-screen relative overflow-clip px-4 py-10">
 
       {/* ── Glassmorphism Card ── */}
-      <div className="glass-card animate-fade-in-up relative z-10 w-full max-w-[420px] rounded-2xl p-8">
-        <BrandHeader variant="register" subtitle="Create your free account" />
+      <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] animate-fade-in-up relative z-10 w-full max-w-[420px] rounded-2xl p-8">
+        <BrandHeader subtitle="Create your free account" />
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 animate-fade-in-up-delay">

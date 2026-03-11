@@ -17,7 +17,7 @@ export default function StatsStrip({ total, components, favorites }: Props) {
     <div className="animate-fade-in-up-delay mb-8 grid grid-cols-3 gap-4">
       {stats.map((stat) => (
         <div key={stat.label} className="glass-card rounded-2xl px-5 py-4">
-          <div className="flex items-center justify-between">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] flex items-center justify-between rounded-2xl px-6 py-4">
             <div>
               <p className="text-xs font-medium text-gray-500">{stat.label}</p>
               <p className="mt-1 text-2xl font-bold text-white">{stat.value}</p>

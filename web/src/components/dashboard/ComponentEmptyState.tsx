@@ -1,19 +1,9 @@
 export default function ComponentEmptyState() {
   return (
-    <div
-      className="glass-card animate-fade-in-up rounded-2xl"
-      style={{ animationDelay: '0.2s' }}
-    >
+    <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] animate-fade-in-up rounded-2xl">
       <div className="flex flex-col items-center justify-center px-8 py-20 text-center">
 
-        <div
-          className="blob-pulse mb-6 flex h-24 w-24 items-center justify-center rounded-3xl"
-          style={{
-            background: 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(139,92,246,0.15) 100%)',
-            border: '1px solid rgba(139,92,246,0.2)',
-            boxShadow: '0 0 32px rgba(139,92,246,0.1)',
-          }}
-        >
+        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500/15 to-purple-500/15 border border-purple-500/20 shadow-[0_0_32px_rgba(139,92,246,0.1)]">
           <svg
             className="h-12 w-12"
             fill="none"
@@ -36,10 +26,7 @@ export default function ComponentEmptyState() {
           Your component vault is empty. Start saving your favourite React components — from simple buttons to full UI patterns.
         </p>
 
-        <div
-          className="mt-10 w-full max-w-sm rounded-xl px-5 py-4 text-left"
-          style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}
-        >
+        <div className="mt-10 w-full max-w-sm rounded-xl px-5 py-4 text-left bg-black/30 border border-white/5">
           <div className="mb-2 flex items-center gap-1.5">
             <div className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
             <div className="h-2.5 w-2.5 rounded-full bg-yellow-500/60" />
