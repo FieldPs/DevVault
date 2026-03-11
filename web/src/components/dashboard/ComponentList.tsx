@@ -3,6 +3,7 @@ import { Eye, Pencil, Trash2, Code2 } from 'lucide-react'
 import { useComponentStore } from '@/store/componentStore'
 import { useFolderStore } from '@/store/folderStore'
 import type { Component } from '@/types/component'
+import { buildFolderOptions } from '@/utils/folderUtils'
 
 const PRIVACY_BADGE: Record<string, string> = {
   private: '🔒 Private',
@@ -16,8 +17,9 @@ interface Props {
 
 function ComponentRow({ component }: Props) {
   const { deleteComponent, moveComponent } = useComponentStore()
-  const { flatFolders } = useFolderStore()
+  const { folders } = useFolderStore()
   const navigate = useNavigate()
+  const folderOptions = buildFolderOptions(folders)
 
   const handleDelete = async () => {
     if (!confirm(`Delete "${component.title}"?`)) return
@@ -48,9 +50,9 @@ function ComponentRow({ component }: Props) {
           className="rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-xs text-gray-300 focus:outline-none"
         >
           <option value="">No folder</option>
-          {flatFolders.map((folder) => (
-            <option key={folder._id} value={folder._id}>
-              {folder.name}
+          {folderOptions.map((folder) => (
+            <option key={folder.id} value={folder.id}>
+              {folder.label}
             </option>
           ))}
         </select>

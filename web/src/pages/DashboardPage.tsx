@@ -56,7 +56,7 @@ export default function DashboardPage() {
             <p className="mt-1 text-sm text-gray-500">Manage and organise your React component library</p>
           </div>
           <button
-            onClick={() => navigate('/components/new')}
+            onClick={() => navigate(selectedFolderId ? `/components/new?folderId=${selectedFolderId}` : '/components/new')}
             className="group relative flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-px hover:shadow-[0_0_24px_rgba(139,92,246,0.45),0_4px_16px_rgba(59,130,246,0.3)] active:translate-y-0"
           >
             {/* Darker gradient overlay on hover — hidden below content */}
