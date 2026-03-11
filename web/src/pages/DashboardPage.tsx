@@ -5,15 +5,26 @@ import Navbar from '@/components/layout/Navbar'
 import StatsStrip from '@/components/dashboard/StatsStrip'
 import ComponentEmptyState from '@/components/dashboard/ComponentEmptyState'
 import ComponentList from '@/components/dashboard/ComponentList'
+import FolderSidebar from '@/components/dashboard/FolderSidebar'
+import FolderBreadcrumb from '@/components/dashboard/FolderBreadcrumb'
 import { useComponentStore } from '@/store/componentStore'
+import { useFolderStore } from '@/store/folderStore'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { components, loading, fetchComponents } = useComponentStore()
+  const { selectedFolderId, fetchFolders, loading: foldersLoading, getSelectedFolderIds } = useFolderStore()
 
   useEffect(() => {
     fetchComponents()
-  }, [fetchComponents])
+    fetchFolders()
+  }, [fetchComponents, fetchFolders])
+
+  const selectedFolderIds = getSelectedFolderIds()
+
+  const filteredComponents = selectedFolderId
+    ? components.filter((component) => component.folderId && selectedFolderIds.includes(component.folderId))
+    : components
 
   return (
     <div className="relative min-h-screen overflow-clip bg-gradient-to-br from-[#0a0a0f] via-[#0d1117] to-[#0a0f1a]">
@@ -61,16 +72,23 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        <StatsStrip total={components.length} components={components.filter(c => c.template === 'react').length} favorites={0} />
+        <StatsStrip total={filteredComponents.length} components={filteredComponents.filter(c => c.template === 'react').length} favorites={0} />
 
-        {loading && (
-          <div className="flex items-center justify-center py-20 text-gray-500 text-sm">
-            Loading…
+        <div className="mb-4 grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
+          <FolderSidebar />
+          <div>
+            <FolderBreadcrumb />
+            {(loading || foldersLoading) && (
+              <div className="flex items-center justify-center py-20 text-sm text-gray-500">
+                Loading…
+              </div>
+            )}
+
+            {!loading && !foldersLoading && filteredComponents.length === 0 && <ComponentEmptyState />}
+            {!loading && !foldersLoading && filteredComponents.length > 0 && <ComponentList components={filteredComponents} />}
           </div>
-        )}
+        </div>
 
-        {!loading && components.length === 0 && <ComponentEmptyState />}
-        {!loading && components.length > 0 && <ComponentList components={components} />}
       </main>
     </div>
   )
