@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   SandpackProvider,
@@ -13,6 +13,27 @@ import type { Component } from '@/types/component'
 import { getSandpackTemplate, getSandpackFiles, detectDependencies, detectExtraFiles, getExternalResources, getSandpackEditorOptions } from '@/utils/sandpackUtils'
 
 type Tab = 'preview' | 'code'
+
+function RunPreviewOnDemand({ enabled }: { enabled: boolean }) {
+  const { sandpack } = useSandpack()
+  const attemptsRef = useRef(0)
+
+  useEffect(() => {
+    if (!enabled) return
+    if (sandpack.status === 'running') return
+    if (attemptsRef.current >= 2) return
+
+    const delay = attemptsRef.current === 0 ? 75 : 1500
+    const timer = window.setTimeout(() => {
+      attemptsRef.current += 1
+      sandpack.runSandpack()
+    }, delay)
+
+    return () => window.clearTimeout(timer)
+  }, [enabled, sandpack, sandpack.status])
+
+  return null
+}
 
 function PreviewStatusBar() {
   const { sandpack } = useSandpack()
@@ -84,7 +105,7 @@ export default function ComponentViewPage() {
   const sandpackOptions = useMemo(
     () => ({
       initMode: 'immediate' as const,
-      autorun: true,
+      autorun: false,
       recompileMode: 'immediate' as const,
       recompileDelay: 300,
       bundlerTimeOut: 180000,
@@ -201,6 +222,7 @@ export default function ComponentViewPage() {
                   customSetup={sandpackCustomSetup}
                   options={{ ...sandpackOptions, ...sandpackEditorOptions }}
                 >
+                  <RunPreviewOnDemand enabled={activeTab === 'preview'} />
                   <div className={activeTab === 'preview' ? 'block' : 'hidden'}>
                     <PreviewStatusBar />
                     <SandpackPreview
