@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useComponentStore } from '@/store/componentStore'
+import { useFolderStore } from '@/store/folderStore'
 import { parseError } from '@/utils/errorUtils'
 import type { ComponentInput, ComponentTemplate, ComponentPrivacy } from '@/types/component'
 import ComponentEditor from '@/components/editor/ComponentEditor'
+import { buildFolderOptions } from '@/utils/folderUtils'
 
 const PRIVACY_OPTIONS: ComponentPrivacy[] = ['private', 'friends', 'public']
 
@@ -47,11 +49,22 @@ export default function ComponentFormPage() {
   const { id } = useParams<{ id?: string }>()
   const isEdit = Boolean(id)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const defaultFolderId = searchParams.get('folderId')
   const { createComponent, updateComponent, getComponent } = useComponentStore()
+  const { folders, fetchFolders } = useFolderStore()
 
-  const [form, setForm] = useState<ComponentInput>(DEFAULT_FORM)
+  const [form, setForm] = useState<ComponentInput>({
+    ...DEFAULT_FORM,
+    folderId: defaultFolderId ?? null,
+  })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const folderOptions = buildFolderOptions(folders)
+
+  useEffect(() => {
+    fetchFolders()
+  }, [fetchFolders])
 
   useEffect(() => {
     if (!isEdit || !id) return
@@ -148,6 +161,23 @@ export default function ComponentFormPage() {
             >
               {PRIVACY_OPTIONS.map((o) => (
                 <option key={o} value={o}>{o}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Folder */}
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-gray-400">Folder</label>
+            <select
+              value={form.folderId ?? ''}
+              onChange={(e) => set('folderId', e.target.value || null)}
+              className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:border-purple-500/50 focus:outline-none"
+            >
+              <option value="">No folder</option>
+              {folderOptions.map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.label}
+                </option>
               ))}
             </select>
           </div>
