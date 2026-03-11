@@ -26,6 +26,20 @@ export default function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-gray-300 transition-colors hover:text-white"
+          >
+            Dashboard
+          </button>
+
+          <button
+            onClick={() => navigate('/explore')}
+            className="rounded-xl border border-blue-500/20 bg-blue-500/10 px-3 py-1.5 text-sm font-medium text-blue-300 transition-colors hover:bg-blue-500/20"
+          >
+            Explore
+          </button>
+
           <div className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 bg-white/5 border border-white/10">
             <div className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white bg-gradient-to-br from-blue-500 to-purple-500 shadow-sm shadow-purple-500/40">
               {avatarInitial}
