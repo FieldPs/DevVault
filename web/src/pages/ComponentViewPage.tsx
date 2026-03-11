@@ -5,13 +5,40 @@ import {
   SandpackPreview,
   SandpackCodeEditor,
   SandpackConsole,
+  useSandpack,
 } from '@codesandbox/sandpack-react'
 import Navbar from '@/components/layout/Navbar'
 import { useComponentStore } from '@/store/componentStore'
 import type { Component } from '@/types/component'
-import { getSandpackTemplate, getSandpackFiles, detectDependencies, detectExtraFiles, getExternalResources } from '@/utils/sandpackUtils'
+import { getSandpackTemplate, getSandpackFiles, detectDependencies, detectExtraFiles, getExternalResources, getSandpackEditorOptions } from '@/utils/sandpackUtils'
 
 type Tab = 'preview' | 'code'
+
+function PreviewStatusBar() {
+  const { sandpack } = useSandpack()
+
+  const message =
+    sandpack.status === 'initial' || sandpack.status === 'idle'
+      ? 'Preparing preview sandbox and installing dependencies...'
+      : sandpack.status === 'timeout'
+        ? 'Preview startup timed out. Open Console for details and use refresh to retry.'
+        : sandpack.status === 'running'
+          ? 'Preview ready'
+          : 'Preview build finished.'
+
+  const tone =
+    sandpack.status === 'timeout'
+      ? 'text-amber-300 bg-amber-500/10 border-amber-500/20'
+      : sandpack.status === 'running'
+        ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20'
+        : 'text-blue-200 bg-blue-500/10 border-blue-500/20'
+
+  return (
+    <div className={`border-b px-3 py-2 text-xs ${tone}`}>
+      {message}
+    </div>
+  )
+}
 
 export default function ComponentViewPage() {
   const { id } = useParams<{ id: string }>()
@@ -23,14 +50,48 @@ export default function ComponentViewPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<Tab>('preview')
   const [copied, setCopied] = useState(false)
-  const [showConsole, setShowConsole] = useState(false)
+  const [showConsole, setShowConsole] = useState(true)
 
   // Auto-detect dependencies from the component's import statements
   const detectedDeps = useMemo(
     () => (component ? detectDependencies(component.code) : {}),
     [component]
   )
-  const extraFiles = useMemo(() => detectExtraFiles(detectedDeps, component?.template || 'react'), [detectedDeps, component])
+  const extraFiles = useMemo(
+    () => detectExtraFiles(detectedDeps, component?.template || 'react', component?.language || 'tsx'),
+    [detectedDeps, component]
+  )
+  const sandpackTemplate = useMemo(
+    () => (component ? getSandpackTemplate(component.template) : 'react'),
+    [component]
+  )
+  const sandpackFiles = useMemo(
+    () => (component ? { ...getSandpackFiles(component.template, component.code, component.cssCode, component.language), ...extraFiles } : {}),
+    [component, extraFiles]
+  )
+  const sandpackKey = useMemo(() => {
+    if (!component) return 'component-view'
+    return `${component._id}:${component.template}:${JSON.stringify(detectedDeps)}`
+  }, [component, detectedDeps])
+  const sandpackCustomSetup = useMemo(
+    () => ({ dependencies: detectedDeps }),
+    [detectedDeps]
+  )
+  const sandpackEditorOptions = useMemo(
+    () => getSandpackEditorOptions(component?.template || 'react', component?.language || 'tsx'),
+    [component]
+  )
+  const sandpackOptions = useMemo(
+    () => ({
+      initMode: 'immediate' as const,
+      autorun: true,
+      recompileMode: 'immediate' as const,
+      recompileDelay: 300,
+      bundlerTimeOut: 180000,
+      externalResources: getExternalResources(),
+    }),
+    []
+  )
 
   useEffect(() => {
     if (!id) return
@@ -132,19 +193,23 @@ export default function ComponentViewPage() {
 
               {/* Tab panels */}
               <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-b-2xl rounded-tr-2xl overflow-hidden">
-                {activeTab === 'preview' && (
-                  <SandpackProvider
-                    template={getSandpackTemplate(component.template)}
-                    theme="dark"
-                    files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
-                    customSetup={{ dependencies: detectedDeps }}
-                    options={{ bundlerTimeOut: 60000, externalResources: getExternalResources() }}
-                  >
+                <SandpackProvider
+                  key={sandpackKey}
+                  template={sandpackTemplate}
+                  theme="dark"
+                  files={sandpackFiles}
+                  customSetup={sandpackCustomSetup}
+                  options={{ ...sandpackOptions, ...sandpackEditorOptions }}
+                >
+                  <div className={activeTab === 'preview' ? 'block' : 'hidden'}>
+                    <PreviewStatusBar />
                     <SandpackPreview
                       style={{ minHeight: 600 }}
                       showNavigator={false}
+                      showRefreshButton
+                      showOpenInCodeSandbox={false}
+                      showSandpackErrorOverlay
                     />
-                    {/* Collapsible console */}
                     <button
                       type="button"
                       onClick={() => setShowConsole((v) => !v)}
@@ -154,14 +219,11 @@ export default function ComponentViewPage() {
                       <span>{showConsole ? '▲' : '▼'}</span>
                     </button>
                     {showConsole && (
-                      <SandpackConsole style={{ maxHeight: 150, overflow: 'auto' }} />
+                      <SandpackConsole style={{ maxHeight: 180, overflow: 'auto' }} showSyntaxError showSetupProgress />
                     )}
-                  </SandpackProvider>
-                )}
+                  </div>
 
-                {activeTab === 'code' && (
-                  <div className="relative">
-                    {/* Copy button */}
+                  <div className={activeTab === 'code' ? 'block relative' : 'hidden'}>
                     <button
                       onClick={handleCopy}
                       className={`absolute top-3 right-3 z-10 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
@@ -173,22 +235,14 @@ export default function ComponentViewPage() {
                       {copied ? '✓ Copied!' : 'Copy Code'}
                     </button>
 
-                    <SandpackProvider
-                      template={getSandpackTemplate(component.template)}
-                      theme="dark"
-                      files={{ ...getSandpackFiles(component.template, component.code, component.cssCode), ...extraFiles }}
-                      customSetup={{ dependencies: detectedDeps }}
-                      options={{ bundlerTimeOut: 60000, externalResources: getExternalResources() }}
-                    >
-                      <SandpackCodeEditor
-                        readOnly
-                        showTabs
-                        showLineNumbers
-                        style={{ minHeight: 600 }}
-                      />
-                    </SandpackProvider>
+                    <SandpackCodeEditor
+                      readOnly
+                      showTabs
+                      showLineNumbers
+                      style={{ minHeight: 600 }}
+                    />
                   </div>
-                )}
+                </SandpackProvider>
               </div>
             </div>
           </div>

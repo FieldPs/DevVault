@@ -6,7 +6,7 @@ const router = Router()
 
 // POST /components — create
 router.post('/', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, code, language, template, description, privacy } = req.body
+  const { title, code, cssCode, language, template, description, privacy, dependencies } = req.body
   if (!title || !code || !language || !template) {
     res.status(400).json({ message: 'title, code, language, and template are required' })
     return
@@ -15,10 +15,12 @@ router.post('/', verifyToken, async (req: AuthRequest, res: Response): Promise<v
     const component = await Component.create({
       title,
       code,
+      cssCode: cssCode ?? '',
       language,
       template,
       description: description ?? '',
       privacy: privacy ?? 'private',
+      dependencies: Array.isArray(dependencies) ? dependencies : [],
       ownerId: req.userId,
     })
     res.status(201).json({ component })
@@ -57,7 +59,7 @@ router.get('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise
 
 // PUT /components/:id — update
 router.put('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { title, code, language, template, description, privacy } = req.body
+  const { title, code, cssCode, language, template, description, privacy, dependencies } = req.body
   if (!title || !code || !language || !template) {
     res.status(400).json({ message: 'title, code, language, and template are required' })
     return
@@ -74,7 +76,16 @@ router.put('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise
     }
     const updated = await Component.findByIdAndUpdate(
       req.params.id,
-      { title, code, language, template, description, privacy },
+      {
+        title,
+        code,
+        cssCode: cssCode ?? '',
+        language,
+        template,
+        description,
+        privacy,
+        dependencies: Array.isArray(dependencies) ? dependencies : [],
+      },
       { new: true }
     )
     res.json({ component: updated })

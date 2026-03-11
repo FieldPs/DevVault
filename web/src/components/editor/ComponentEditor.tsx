@@ -15,12 +15,14 @@ import {
   detectDependencies,
   detectExtraFiles,
   getExternalResources,
+  getSandpackEditorOptions,
 } from '@/utils/sandpackUtils'
 
 interface ComponentEditorProps {
   code: string
   cssCode?: string
   template: ComponentTemplate
+  language?: string
   onChange: (code: string) => void
   onCssChange?: (css: string) => void
   onTemplateChange: (t: ComponentTemplate) => void
@@ -136,6 +138,7 @@ export default function ComponentEditor({
   code,
   cssCode,
   template,
+  language,
   onChange,
   onCssChange,
   onTemplateChange,
@@ -145,7 +148,7 @@ export default function ComponentEditor({
 
   // Auto-detect dependencies from import statements
   const detectedDeps = useMemo(() => detectDependencies(code), [code])
-  const extraFiles   = useMemo(() => detectExtraFiles(detectedDeps, template), [detectedDeps, template])
+  const extraFiles   = useMemo(() => detectExtraFiles(detectedDeps, template, language), [detectedDeps, template, language])
 
   // Include template in key so switching template always remounts the provider
   const sandpackKey = useMemo(
@@ -154,9 +157,13 @@ export default function ComponentEditor({
   )
 
   const sandpackTemplate = getSandpackTemplate(template)
+  const sandpackEditorOptions = useMemo(
+    () => getSandpackEditorOptions(template, language),
+    [template, language]
+  )
   const files = useMemo(
-    () => ({ ...getSandpackFiles(template, code, cssCode), ...extraFiles }),
-    [template, code, cssCode, extraFiles]
+    () => ({ ...getSandpackFiles(template, code, cssCode, language), ...extraFiles }),
+    [template, code, cssCode, language, extraFiles]
   )
 
   return (
@@ -210,6 +217,7 @@ export default function ComponentEditor({
           files={files}
           customSetup={{ dependencies: detectedDeps }}
           options={{
+            ...sandpackEditorOptions,
             recompileMode: realtimeMode ? 'immediate' : 'delayed',
             recompileDelay: realtimeMode ? 300 : 9_999_999,
             autorun: realtimeMode,
