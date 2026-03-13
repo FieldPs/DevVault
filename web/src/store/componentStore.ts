@@ -67,25 +67,30 @@ export const useComponentStore = create<ComponentState>((set, get) => ({
   },
 
   moveComponent: async (id, folderId) => {
-    const component = get().components.find((item) => item._id === id)
-    if (!component) {
-      throw new Error('Component not found')
-    }
+    try {
+      const component = get().components.find((item) => item._id === id)
+      if (!component) {
+        throw new Error('Component not found')
+      }
 
-    const payload: ComponentInput = {
-      title: component.title,
-      description: component.description ?? '',
-      code: component.code,
-      cssCode: component.cssCode ?? '',
-      language: component.language,
-      template: component.template,
-      privacy: component.privacy,
-      dependencies: component.dependencies ?? [],
-      folderId,
-    }
+      const payload: ComponentInput = {
+        title: component.title,
+        description: component.description ?? '',
+        code: component.code,
+        cssCode: component.cssCode ?? '',
+        language: component.language,
+        template: component.template,
+        privacy: component.privacy,
+        dependencies: component.dependencies ?? [],
+        folderId,
+      }
 
-    const res = await api.put(`/components/${id}`, payload)
-    const updated: Component = res.data.component
-    set({ components: get().components.map((item) => (item._id === id ? updated : item)) })
+      const res = await api.put(`/components/${id}`, payload)
+      const updated: Component = res.data.component
+      set({ components: get().components.map((item) => (item._id === id ? updated : item)) })
+    } catch (err) {
+      set({ error: parseError(err, 'Failed to move component') })
+      throw err
+    }
   },
 }))

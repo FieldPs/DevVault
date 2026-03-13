@@ -156,7 +156,13 @@ function ComponentCard({ component, folderOptions }: Props) {
             Folder
             <select
               value={component.folderId ?? ''}
-              onChange={(e) => moveComponent(component._id, e.target.value || null)}
+              onChange={async (e) => {
+                try {
+                  await moveComponent(component._id, e.target.value || null)
+                } catch {
+                  alert('Failed to move component. Please try again.')
+                }
+              }}
               className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-xs text-gray-300 focus:outline-none"
             >
               <option value="">No folder</option>

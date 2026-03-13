@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   SandpackProvider,
@@ -8,32 +8,12 @@ import {
   useSandpack,
 } from '@codesandbox/sandpack-react'
 import Navbar from '@/components/layout/Navbar'
+import RunPreviewOnDemand from '@/components/editor/RunPreviewOnDemand'
 import { useComponentStore } from '@/store/componentStore'
 import type { Component } from '@/types/component'
 import { getSandpackTemplate, getSandpackFiles, detectDependencies, detectExtraFiles, getExternalResources, getSandpackEditorOptions } from '@/utils/sandpackUtils'
 
 type Tab = 'preview' | 'code'
-
-function RunPreviewOnDemand({ enabled }: { enabled: boolean }) {
-  const { sandpack } = useSandpack()
-  const attemptsRef = useRef(0)
-
-  useEffect(() => {
-    if (!enabled) return
-    if (sandpack.status === 'running') return
-    if (attemptsRef.current >= 2) return
-
-    const delay = attemptsRef.current === 0 ? 75 : 1500
-    const timer = window.setTimeout(() => {
-      attemptsRef.current += 1
-      sandpack.runSandpack()
-    }, delay)
-
-    return () => window.clearTimeout(timer)
-  }, [enabled, sandpack, sandpack.status])
-
-  return null
-}
 
 function PreviewStatusBar() {
   const { sandpack } = useSandpack()
