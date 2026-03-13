@@ -40,6 +40,20 @@ export default function Navbar() {
             Explore
           </button>
 
+          <button
+            onClick={() => navigate('/friends')}
+            className="rounded-xl border border-purple-500/20 bg-purple-500/10 px-3 py-1.5 text-sm font-medium text-purple-300 transition-colors hover:bg-purple-500/20"
+          >
+            Friends
+          </button>
+
+          <button
+            onClick={() => navigate('/search-users')}
+            className="rounded-xl border border-green-500/20 bg-green-500/10 px-3 py-1.5 text-sm font-medium text-green-300 transition-colors hover:bg-green-500/20"
+          >
+            Search
+          </button>
+
           <div className="flex items-center gap-2.5 rounded-xl px-3 py-1.5 bg-white/5 border border-white/10">
             <div className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white bg-gradient-to-br from-blue-500 to-purple-500 shadow-sm shadow-purple-500/40">
               {avatarInitial}
