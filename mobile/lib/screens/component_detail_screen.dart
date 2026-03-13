@@ -157,8 +157,14 @@ class _ComponentDetailScreenState extends State<ComponentDetailScreen>
           child: TabBarView(
             controller: _tabController,
             children: [
-              // Preview tab - WebView
-              ComponentPreview(componentId: component.id),
+              // Preview tab - Local HTML generation
+              ComponentPreview(
+                componentId: component.id,
+                code: component.code,
+                cssCode: component.cssCode,
+                language: component.language,
+                template: component.template,
+              ),
               
               // Code tab - Syntax highlighted code
               _buildCodeTab(component),

@@ -26,7 +26,13 @@ class AuthService {
       );
 
       final user = User.fromJson(response.data['user']);
-      await _storageService.saveUser(user);
+      // Save token if returned in response (for Bearer token auth)
+      final token = response.data['token'] as String?;
+      if (token != null) {
+        await _storageService.saveUserWithToken(user, token);
+      } else {
+        await _storageService.saveUser(user);
+      }
       return user;
     } on DioException catch (e) {
       throw _handleAuthError(e);
@@ -49,7 +55,13 @@ class AuthService {
     try {
       final response = await _apiService.get(ApiConfig.me);
       final user = User.fromJson(response.data['user']);
-      await _storageService.saveUser(user);
+      // Preserve token if present in response (token refresh scenario)
+      final token = response.data['token'] as String?;
+      if (token != null) {
+        await _storageService.saveUserWithToken(user, token);
+      } else {
+        await _storageService.saveUser(user);
+      }
       return user;
     } on DioException {
       return null;

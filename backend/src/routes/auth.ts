@@ -43,7 +43,10 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     const token = signToken(String(user._id))
 
     res.cookie('token', token, COOKIE_OPTIONS)
-    res.status(201).json({ user: { id: user._id, username: user.username, email: user.email } })
+    res.status(201).json({
+      user: { id: user._id, username: user.username, email: user.email },
+      token // Include token in response body for mobile apps
+    })
   } catch (err) {
     res.status(500).json({ message: 'Server error' })
   }
@@ -68,7 +71,10 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     const token = signToken(String(user._id))
 
     res.cookie('token', token, COOKIE_OPTIONS)
-    res.json({ user: { id: user._id, username: user.username, email: user.email } })
+    res.json({
+      user: { id: user._id, username: user.username, email: user.email },
+      token // Include token in response body for mobile apps
+    })
   } catch (err) {
     res.status(500).json({ message: 'Server error' })
   }
