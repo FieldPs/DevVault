@@ -2,7 +2,9 @@ import { Router, Response } from 'express'
 import { Types } from 'mongoose'
 import { Component } from '../models/Component'
 import { Folder } from '../models/Folder'
+import { User } from '../models/User'
 import { verifyToken, AuthRequest } from '../middleware/auth'
+import { getMutualFriendIds } from './social'
 
 const router = Router()
 
@@ -69,6 +71,52 @@ router.get('/explore', verifyToken, async (req: AuthRequest, res: Response): Pro
       .sort({ createdAt: -1 })
 
     res.json({ components })
+  } catch {
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+// GET /components/friends — list friends-only components from mutual followers
+router.get('/friends', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const friendIds = await getMutualFriendIds(req.userId!)
+    
+    if (friendIds.length === 0) {
+      res.json({ components: [] })
+      return
+    }
+
+    const components = await Component.find({
+      ownerId: { $in: friendIds },
+      privacy: 'friends',
+    })
+      .populate('ownerId', 'username')
+      .sort({ createdAt: -1 })
+
+    res.json({ components })
+  } catch {
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+// GET /components/user/:username — list public components by username (no auth)
+router.get('/user/:username', async (req, res: Response): Promise<void> => {
+  try {
+    const user = await User.findOne({ username: req.params.username })
+    if (!user) {
+      res.status(404).json({ message: 'User not found' })
+      return
+    }
+
+    const components = await Component.find({
+      ownerId: user._id,
+      privacy: 'public',
+    }).sort({ createdAt: -1 })
+
+    res.json({
+      user: { _id: user._id, username: user.username },
+      components
+    })
   } catch {
     res.status(500).json({ message: 'Internal server error' })
   }

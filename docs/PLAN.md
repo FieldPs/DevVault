@@ -16,7 +16,7 @@
 | 4 | Recursive Folder System | ✅ done |
 | 5 | Visual Gallery (Live Sandpack Rendering) | ✅ done |
 | 6 | Privacy Levels (Private/Friends/Public) | ✅ done |
-| 7 | Social — Follow & Friends | 🔲 todo |
+| 7 | Social — Follow & Friends | ✅ done |
 | 8 | Flutter Mobile App | 🔲 todo |
 | 9 | Polish & Extras | 🔲 todo |
 
@@ -164,18 +164,18 @@
 ---
 
 ## Chunk 7 — Social — Follow & Friends
-**Status**: 🔲 todo  
-**Depends on**: Chunk 6  
+**Status**: ✅ done
+**Depends on**: Chunk 6
 **Commit**: `feat: social follow system with friends-only visibility`
 
 ### Tasks
-- [ ] **Backend**: Follow/Friend model (followerId, followingId)
-- [ ] **Backend**: `POST /social/follow/:userId`, `DELETE /social/unfollow/:userId`
-- [ ] **Backend**: `GET /social/friends` — list friends
-- [ ] **Backend**: Friends-only component query ตาม social graph
-- [ ] **Web**: Profile page `/u/:username`
-- [ ] **Web**: Follow/Unfollow button
-- [ ] **Web**: Friends-only components แสดงใน feed ของเพื่อน
+- [x] **Backend**: Follow/Friend model (followerId, followingId)
+- [x] **Backend**: `POST /social/follow/:userId`, `DELETE /social/unfollow/:userId`
+- [x] **Backend**: `GET /social/friends` — list friends
+- [x] **Backend**: Friends-only component query ตาม social graph
+- [x] **Web**: Profile page `/u/:username`
+- [x] **Web**: Follow/Unfollow button
+- [x] **Web**: Friends-only components แสดงใน feed ของเพื่อน
 - [ ] Verify: Follow user → เห็น friends-only component, Unfollow → หายไป
 
 ---

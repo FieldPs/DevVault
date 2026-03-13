@@ -7,6 +7,7 @@ import { connectDB } from './config/database'
 import authRoutes from './routes/auth'
 import componentRoutes from './routes/components'
 import folderRoutes from './routes/folders'
+import socialRoutes from './routes/social'
 
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.use(cookieParser())
 app.use('/auth', authRoutes)
 app.use('/components', componentRoutes)
 app.use('/folders', folderRoutes)
+app.use('/social', socialRoutes)
 
 // Health check
 app.get('/health', (_req, res) => {
