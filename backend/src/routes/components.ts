@@ -100,6 +100,10 @@ router.get('/public/:id', async (req, res: Response): Promise<void> => {
 
 // GET /components/:id — single component
 router.get('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  if (!Types.ObjectId.isValid(req.params.id)) {
+    res.status(400).json({ message: 'Invalid component id' })
+    return
+  }
   try {
     const component = await Component.findById(req.params.id)
     if (!component) {
@@ -119,6 +123,10 @@ router.get('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise
 // PUT /components/:id — update
 router.put('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
   const { title, code, cssCode, language, template, description, privacy, dependencies, folderId } = req.body
+  if (!Types.ObjectId.isValid(req.params.id)) {
+    res.status(400).json({ message: 'Invalid component id' })
+    return
+  }
   if (!title || !code || !language || !template) {
     res.status(400).json({ message: 'title, code, language, and template are required' })
     return
@@ -167,6 +175,10 @@ router.put('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise
 
 // DELETE /components/:id
 router.delete('/:id', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
+  if (!Types.ObjectId.isValid(req.params.id)) {
+    res.status(400).json({ message: 'Invalid component id' })
+    return
+  }
   try {
     const component = await Component.findById(req.params.id)
     if (!component) {

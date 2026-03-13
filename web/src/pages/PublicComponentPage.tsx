@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   SandpackCodeEditor,
   SandpackConsole,
   SandpackPreview,
   SandpackProvider,
-  useSandpack,
 } from '@codesandbox/sandpack-react'
+import RunPreviewOnDemand from '@/components/editor/RunPreviewOnDemand'
 import type { PublicComponent } from '@/types/component'
 import { useAuthStore } from '@/store/authStore'
 import { useComponentStore } from '@/store/componentStore'
@@ -20,27 +20,6 @@ import {
 } from '@/utils/sandpackUtils'
 
 type Tab = 'preview' | 'code'
-
-function RunPreviewOnDemand({ enabled }: { enabled: boolean }) {
-  const { sandpack } = useSandpack()
-  const attemptsRef = useRef(0)
-
-  useEffect(() => {
-    if (!enabled) return
-    if (sandpack.status === 'running') return
-    if (attemptsRef.current >= 2) return
-
-    const delay = attemptsRef.current === 0 ? 75 : 1500
-    const timer = window.setTimeout(() => {
-      attemptsRef.current += 1
-      sandpack.runSandpack()
-    }, delay)
-
-    return () => window.clearTimeout(timer)
-  }, [enabled, sandpack, sandpack.status])
-
-  return null
-}
 
 function getOwnerName(component: PublicComponent): string {
   if (typeof component.ownerId === 'string') return 'Unknown'
