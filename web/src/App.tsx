@@ -9,6 +9,7 @@ import ComponentFormPage from '@/pages/ComponentFormPage'
 import ComponentViewPage from '@/pages/ComponentViewPage'
 import ExplorePage from '@/pages/ExplorePage'
 import PublicComponentPage from '@/pages/PublicComponentPage'
+import ProfilePage from '@/pages/ProfilePage'
 
 export default function App() {
   // Rehydrate auth state from the server once on mount (replaces AuthProvider useEffect)
@@ -21,6 +22,7 @@ export default function App() {
       <Route path="/login"    element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/c/:id" element={<PublicComponentPage />} />
+      <Route path="/u/:username" element={<ProfilePage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/explore" element={<ExplorePage />} />
