@@ -17,7 +17,7 @@
 | 5 | Visual Gallery (Live Sandpack Rendering) | ✅ done |
 | 6 | Privacy Levels (Private/Friends/Public) | ✅ done |
 | 7 | Social — Follow & Friends | ✅ done |
-| 8 | Flutter Mobile App | 🔲 todo |
+| 8 | Flutter Mobile App | ✅ done |
 | 9 | Polish & Extras | 🔲 todo |
 
 ---
@@ -166,9 +166,19 @@
 ## Chunk 7 — Social — Follow & Friends
 **Status**: ✅ done
 **Depends on**: Chunk 6
+**Status**: ✅ done
+**Depends on**: Chunk 6
 **Commit**: `feat: social follow system with friends-only visibility`
 
 ### Tasks
+- [x] **Backend**: Follow/Friend model (followerId, followingId)
+- [x] **Backend**: `POST /social/follow/:userId`, `DELETE /social/unfollow/:userId`
+- [x] **Backend**: `GET /social/friends` — list friends
+- [x] **Backend**: Friends-only component query ตาม social graph
+- [x] **Web**: Profile page `/u/:username`
+- [x] **Web**: Follow/Unfollow button
+- [x] **Web**: Friends-only components แสดงใน feed ของเพื่อน
+- [x] Verify: Follow user → เห็น friends-only component, Unfollow → หายไป
 - [x] **Backend**: Follow/Friend model (followerId, followingId)
 - [x] **Backend**: `POST /social/follow/:userId`, `DELETE /social/unfollow/:userId`
 - [x] **Backend**: `GET /social/friends` — list friends
@@ -181,19 +191,19 @@
 ---
 
 ## Chunk 8 — Flutter Mobile App
-**Status**: 🔲 todo  
-**Depends on**: Chunk 1 (Auth API ready)  
-**Commit**: `feat: flutter mobile app - gallery and view/copy`
+**Status**: ✅ done
+**Depends on**: Chunk 1 (Auth API ready)
+**Commit**: `feat: flutter mobile app with preview and code view`
 
-> **Note**: Mobile uses a **static code view with syntax highlighting** — NOT Sandpack live preview. Sandpack requires a full browser environment; Flutter WebView cannot reliably sandbox arbitrary React execution. The mobile experience is intentionally read-and-copy only.
+> **Note**: Mobile app uses **WebView** to load the public preview page `/c/:id` for live component preview. Code view uses syntax highlighting with copy functionality. No split editor or code editing on mobile.
 
 ### Tasks
-- [ ] **Flutter**: Setup project + Dio (HTTP) + SharedPreferences
-- [ ] **Flutter**: Login screen (ใช้ API จาก backend)
-- [ ] **Flutter**: Gallery screen — grid/list ของ components
-- [ ] **Flutter**: Component detail screen — syntax highlight + Copy button
-- [ ] **Flutter**: Search bar
-- [ ] Verify: Login → เห็น gallery → เปิด component → copy code ได้
+- [x] **Flutter**: Setup project + Dio (HTTP) + SharedPreferences + Provider
+- [x] **Flutter**: Login screen (ใช้ API จาก backend)
+- [x] **Flutter**: Gallery screen — grid/list ของ components
+- [x] **Flutter**: Component detail screen — Preview tab (WebView) + Code tab (syntax highlight) + Copy button
+- [x] **Flutter**: Search bar
+- [x] Verify: Login → เห็น gallery → เปิด component → preview ได้ → copy code ได้
 
 ---
 
