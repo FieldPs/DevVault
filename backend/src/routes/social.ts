@@ -203,6 +203,34 @@ router.get(
   }
 )
 
+// GET /social/search?q=username — Search users by username
+router.get(
+  '/search',
+  verifyToken,
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const { q } = req.query
+
+    if (!q || typeof q !== 'string' || q.trim().length === 0) {
+      res.status(400).json({ message: 'Search query is required' })
+      return
+    }
+
+    try {
+      const users = await User.find({
+        username: { $regex: q.trim(), $options: 'i' },
+        _id: { $ne: req.userId }, // Exclude current user
+      })
+        .select('_id username createdAt')
+        .limit(20)
+        .sort({ username: 1 })
+
+      res.json({ users })
+    } catch {
+      res.status(500).json({ message: 'Internal server error' })
+    }
+  }
+)
+
 // Export helper for use in other routes
 export { getMutualFriendIds }
 export default router

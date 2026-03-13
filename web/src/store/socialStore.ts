@@ -10,6 +10,7 @@ interface SocialState {
   following: FollowUser[]
   followers: FollowUser[]
   friends: FollowUser[]
+  searchResults: FollowUser[]
   loading: boolean
   error: string | null
 
@@ -19,8 +20,10 @@ interface SocialState {
   fetchFollowing: () => Promise<void>
   fetchFollowers: () => Promise<void>
   fetchFriends: () => Promise<void>
+  searchUsers: (query: string) => Promise<void>
   getFollowStatus: (userId: string) => Promise<FollowStatus>
   clearError: () => void
+  clearSearchResults: () => void
 }
 
 // ---------------------------------------------------------------------------
@@ -31,6 +34,7 @@ export const useSocialStore = create<SocialState>((set) => ({
   following: [],
   followers: [],
   friends: [],
+  searchResults: [],
   loading: false,
   error: null,
 
@@ -88,6 +92,16 @@ export const useSocialStore = create<SocialState>((set) => ({
     }
   },
 
+  searchUsers: async (query) => {
+    set({ loading: true, error: null })
+    try {
+      const res = await api.get(`/social/search?q=${encodeURIComponent(query)}`)
+      set({ searchResults: res.data.users, loading: false })
+    } catch {
+      set({ error: 'Failed to search users', loading: false })
+    }
+  },
+
   getFollowStatus: async (userId) => {
     try {
       const res = await api.get(`/social/status/${userId}`)
@@ -98,4 +112,5 @@ export const useSocialStore = create<SocialState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
+  clearSearchResults: () => set({ searchResults: [] }),
 }))
