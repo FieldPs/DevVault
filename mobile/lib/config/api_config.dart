@@ -1,22 +1,42 @@
+import 'package:flutter/foundation.dart';
+
 /// API Configuration for DevVault Mobile App
+/// 
+/// Environment variables can be passed via:
+/// - Development: `flutter run` (uses defaults)
+/// - Production: `flutter build --dart-define=IS_PRODUCTION=true`
+/// 
+/// For Android emulator, use 10.0.2.2 instead of localhost
 class ApiConfig {
-  // Backend API URL
-  static const String devApiUrl = 'http://localhost:3000';
-  static const String prodApiUrl = 'https://devvault-api.onrender.com';
+  // Environment variables (passed via --dart-define)
+  static const String _envApiUrl = String.fromEnvironment('API_URL', defaultValue: '');
+  static const String _envWebUrl = String.fromEnvironment('WEB_URL', defaultValue: '');
+  static const bool _isProduction = bool.fromEnvironment('IS_PRODUCTION', defaultValue: false);
+
+  // Default URLs
+  // For Android emulator: use 10.0.2.2 instead of localhost
+  static const String _devApiUrl = 'http://10.0.2.2:3000';
+  static const String _prodApiUrl = 'https://devvault-api.onrender.com';
   
-  // Web App URL (for WebView preview)
-  static const String devWebUrl = 'http://localhost:5173';
-  static const String prodWebUrl = 'https://devvault-web.vercel.app';
+  // Web app URLs (for WebView preview)
+  static const String _devWebUrl = 'http://10.0.2.2:5173';
+  static const String _prodWebUrl = 'https://devvault-web.vercel.app';
+
+  /// Get the base API URL
+  static String get baseUrl {
+    if (_envApiUrl.isNotEmpty) return _envApiUrl;
+    return _isProduction ? _prodApiUrl : _devApiUrl;
+  }
   
-  // Current environment
-  static const bool _isProduction = false; // Set to true for production builds
+  /// Get the web app URL (for WebView preview)
+  static String get webUrl {
+    if (_envWebUrl.isNotEmpty) return _envWebUrl;
+    return _isProduction ? _prodWebUrl : _devWebUrl;
+  }
   
-  /// Get the base API URL based on environment
-  static String get baseUrl => _isProduction ? prodApiUrl : devApiUrl;
-  
-  /// Get the web app URL based on environment
-  static String get webUrl => _isProduction ? prodWebUrl : devWebUrl;
-  
+  /// Check if running in production mode
+  static bool get isProduction => _isProduction;
+
   /// API endpoints
   static String get login => '$baseUrl/auth/login';
   static String get logout => '$baseUrl/auth/logout';
