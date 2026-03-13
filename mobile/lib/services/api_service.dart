@@ -23,18 +23,18 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Include credentials for cookie-based auth
-          options.extra['withCredentials'] = true;
+          // Add Bearer token if available
+          final token = _storageService.token;
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
           return handler.next(options);
         },
-        onResponse: (response, handler) {
-          return handler.next(response);
-        },
-        onError: (error, handler) {
+        onError: (error, handler) async {
           // Handle common errors
           if (error.response?.statusCode == 401) {
             // Unauthorized - clear user data
-            _storageService.clearUser();
+            await _storageService.clearUser();
           }
           return handler.next(error);
         },

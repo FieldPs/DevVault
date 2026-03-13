@@ -15,7 +15,7 @@ class ApiConfig {
 
   // Default URLs
   // For Android emulator: use 10.0.2.2 instead of localhost
-  static const String _devApiUrl = 'http://10.0.2.2:3000';
+  static const String _devApiUrl = 'http://10.0.2.2:5000';
   static const String _prodApiUrl = 'https://devvault-api.onrender.com';
   
   // Web app URLs (for WebView preview)

@@ -6,7 +6,16 @@ export interface AuthRequest extends Request {
 }
 
 export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  const token = req.cookies?.token
+  // Try to get token from cookie first (for web), then from Authorization header (for mobile)
+  let token = req.cookies?.token
+
+  // If no cookie token, check Authorization header for Bearer token
+  if (!token) {
+    const authHeader = req.headers.authorization
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7) // Remove 'Bearer ' prefix
+    }
+  }
 
   if (!token) {
     res.status(401).json({ message: 'Unauthorized' })
@@ -14,7 +23,7 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
   }
 
   try {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string }
     req.userId = decoded.userId
     next()
   } catch {
