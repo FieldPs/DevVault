@@ -24,10 +24,7 @@ class AuthProvider with ChangeNotifier {
   Future<void> init() async {
     if (_initialized) return;
     
-    _isLoading = true;
-    notifyListeners();
-
-    // Try to get cached user first
+    // Try to get cached user first (synchronous, no notify)
     _user = _authService.getCachedUser();
     
     // Then verify with API
@@ -36,9 +33,8 @@ class AuthProvider with ChangeNotifier {
       _user = freshUser;
     }
     
-    _isLoading = false;
     _initialized = true;
-    notifyListeners();
+    // Don't notify here - let the splash screen handle navigation
   }
 
   /// Login with email and password

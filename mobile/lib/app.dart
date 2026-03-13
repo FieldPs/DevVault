@@ -18,9 +18,8 @@ class DevVaultApp extends StatelessWidget {
       title: 'DevVault',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      initialRoute: '/',
+      home: const SplashScreen(),
       routes: {
-        '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/gallery': (context) => const GalleryScreen(),
         '/search': (context) => const SearchScreen(),
@@ -39,61 +38,72 @@ class DevVaultApp extends StatelessWidget {
 }
 
 /// Splash screen that checks auth state
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  bool _isNavigating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Use addPostFrameCallback to avoid calling during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initAuth();
+    });
+  }
+
+  Future<void> _initAuth() async {
+    if (_isNavigating) return;
+    
+    final auth = context.read<AuthProvider>();
+    await auth.init();
+    
+    if (!mounted || _isNavigating) return;
+    
+    _isNavigating = true;
+    
+    if (auth.isLoggedIn) {
+      Navigator.of(context).pushReplacementNamed('/gallery');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Consumer<AuthProvider>(
-          builder: (context, auth, child) {
-            // Initialize auth state
-            if (!auth.initialized) {
-              auth.init().then((_) {
-                _navigateBasedOnAuth(context, auth);
-              });
-            }
-
-            // Show loading while initializing
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.code_rounded,
-                  size: 80,
-                  color: AppTheme.primaryColor,
-                ),
-                const SizedBox(height: 24),
-                const SpinKitFadingCube(
-                  color: AppTheme.primaryColor,
-                  size: 40,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'DevVault',
-                  style: AppTheme.headingLarge,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Loading...',
-                  style: AppTheme.bodyMedium,
-                ),
-              ],
-            );
-          },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.code_rounded,
+              size: 80,
+              color: AppTheme.primaryColor,
+            ),
+            const SizedBox(height: 24),
+            const SpinKitFadingCube(
+              color: AppTheme.primaryColor,
+              size: 40,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'DevVault',
+              style: AppTheme.headingLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Loading...',
+              style: AppTheme.bodyMedium,
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  void _navigateBasedOnAuth(BuildContext context, AuthProvider auth) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (auth.isLoggedIn) {
-        Navigator.of(context).pushReplacementNamed('/gallery');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/login');
-      }
-    });
   }
 }
