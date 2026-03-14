@@ -26,8 +26,11 @@ export default function ProfilePage() {
     if (!username) return
 
     let active = true
-    setLoading(true)
-    setError('')
+    // Defer setState to avoid synchronous setState in effect
+    const timeoutId = setTimeout(() => {
+      setLoading(true)
+      setError('')
+    }, 0)
 
     api
       .get(`/components/user/${username}`)
@@ -46,6 +49,7 @@ export default function ProfilePage() {
 
     return () => {
       active = false
+      clearTimeout(timeoutId)
     }
   }, [username])
 

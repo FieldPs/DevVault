@@ -17,7 +17,6 @@ export function FriendsFeedSection() {
   useEffect(() => {
     let active = true
 
-    setLoading(true)
     api
       .get('/components/friends')
       .then((res) => {
